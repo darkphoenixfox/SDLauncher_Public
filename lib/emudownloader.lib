@@ -1,0 +1,97 @@
+﻿emudownloader(DMemuname,DMfullfilename,DMtotalFilesize,DMdocumentation)
+{
+filenamepath :=
+fileName :=
+SplitPath,DMfullfilename,fileName
+filenamepath = %a_scriptdir%\temp\%filename%
+; download the latest driver based on the filename we assigned above
+if !(FileExist(filenamepath)) {
+	MsgBox,65,Downloading Software, Press OK to download`n`n -- %fileName% --`n`nfrom the official website.
+
+	IfMsgBox, OK
+	{
+		If ConnectedToInternet() {
+			msg := "Please wait while download is in progress"
+			; Show splash bar
+			Progress, 0 FM10 FS8 WM400 WS400 ,`n,%msg%, Downloading %fileName%, Tahoma
+			; Now set the splash bar updating
+			SetTimer, uProgressD, 250
+			; start the download
+			UrlDownloadToFile, %DMfullfilename%, %filenamepath%
+			; download Finished turn off splashbar
+			SetTimer, uProgressD, off
+			Progress, Off
+			}
+		else {
+		   Msgbox, 48, Error, Your Internet seems to be down.`nI can't download %fileName%.
+		}
+	} 
+	IfMsgBox, Cancel
+	{
+		return
+	}
+
+}
+	
+	MsgBox, 8224, %DMemuname% Install Path, Choose a folder to install %DMemuname% or accept the default folder.
+	if !Fileexist( A_Scriptdir "\emulators\" DMemuname)
+	{
+		FileCreateDir, %A_Scriptdir%\emulators\%DMemuname%
+		createdAdir = 1
+	}
+	FileSelectFolder, emulocation, *%A_ScriptDir%\emulators\%DMemuname%, 3, Select the installation path for %DMemuname%
+		if (Errorlevel = 1)
+		{
+			msgbox, Installation cancelled, %DMemuname% installation cancelled.
+			return
+		}
+		if (emulocation != A_Scriptdir "\emulators\" DMemuname) && (createdAdir = 1)
+			FileRemoveDir, %A_Scriptdir%\emulators\%DMemuname%
+		
+
+	msg := "Please wait while extraction is in progress"
+	; Show splash bar
+	Progress, 0 FM10 FS8 WM400 WS400 ,`n,%msg%, Extracting %fileName%, Tahoma
+	; Now set the splash bar updating
+		SetTimer, uProgressX, 250
+	; extract the software folder
+	run, `"%a_scriptdir%\lib\7z.exe`" x -y `"%filenamepath%`" -o`"%emulocation%`", %A_ScriptDir% , Hide
+	; download Finished turn off splashbar
+	SetTimer, uProgressX, off
+	Progress, Off
+	sleep 200
+	MsgBox, 8256, Installation Complete, %DMemuname% has been installed in:`n %emulocation%. `n`nDon't forget to check the Wiki to learn how configure it.
+	
+
+return emulocation
+
+uProgressD:
+	; get filesize
+	FileGetSize, fs, %filenamepath%
+	; calculate percent
+	a := Floor(fs/DMtotalFileSize * 100)
+	; calculate percent with two 
+	b := Floor(fs/DMtotalFileSize * 10000)/100
+	SetFormat, float, 0.2
+	b += 0
+	Progress, %a%, %b%`% done (%fs% Bytes of %DMtotalFileSize% Bytes)
+return
+
+uProgressX:
+	a += 20
+	if (a > 100)
+	{
+		Sleep, 500
+		a = 0
+		
+	}
+	Progress, %a%, Extracting
+return
+}
+
+
+
+ConnectedToInternet(flag=0x40) { 
+Return DllCall("Wininet.dll\InternetGetConnectedState", "Str", flag,"Int",0) 
+}
+
