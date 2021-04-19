@@ -14,11 +14,12 @@ SetWinDelay, -1
 
 ; capture the parameters given to the program
 numParams = %0% ;0 1 or 2
-systemParam = %1% ;ps1 ps2 snes mame or demul 
+systemParam = %1% ;ps1 snes || ps2 mame or demul 
 gameParam = %2% ; iso name with full path
 systems := [] ; Init array
 ;.systems := [ps1,ps2,snes,demul,mame]
-.systems := [ps1]
+systems := {"ps1":0,"snes":0}
+
 FileCreateDir, %a_scriptdir%\temp
 
 
@@ -33,27 +34,47 @@ iniread, softwaresize, sdlauncher.ini, general, softwaresize, 23855276
 iniread, softwarehash, sdlauncher.ini, general, softwarehash, 1672dc77d6cc505bd47cb85ffbf9b393
 
 ;[ps1]
-IniRead, ps1name, sdlauncher.ini, ps1, ps1name, Duckstation
 IniRead, ps1emulocation, sdlauncher.ini, ps1, ps1emulocation, 0 
 IniRead, ps1parameters, sdlauncher.ini, ps1, ps1parameters, 0
 IniRead, ps1bezelslocation, sdlauncher.ini, ps1, ps1bezelsLocation, 0
 IniRead, ps1gameslocation, sdlauncher.ini, ps1, ps1gameslocation, 0
 IniRead, ps1hidemouse, sdlauncher.ini, ps1, ps1hidemouse, 0
 
-
+;static
+IniRead, ps1name, sdlauncher.ini, ps1, ps1name, Duckstation
 iniread, latestps1, sdlauncher.ini, ps1, latestps1, https://github.com/stenzek/duckstation/releases/download/latest/duckstation-windows-x64-release.zip
 iniread, ps1size, sdlauncher.ini, ps1, ps1size, 21641575
 iniread, ps1docs, sdlauncher.ini, ps1, ps1docs, https://github.com/stenzek/duckstation
+IniRead, ps1wiki, sdlauncher.ini, ps1, ps1wiki, https://sindenlightgun.miraheze.org/wiki/Duckstation
+IniRead, ps1video, sdlauncher.ini, ps1, ps1video, https://youtu.be/OvyUvxzBLOc
+
 
 SplitPath, ps1emulocation ,, ps1emufolder
 
+
+;[snes]
+IniRead, snesemulocation, sdlauncher.ini, snes, snesemulocation, 0 
+IniRead, snesparameters, sdlauncher.ini, snes, snesparameters, 0
+IniRead, snesbezelslocation, sdlauncher.ini, snes, snesbezelsLocation, 0
+IniRead, snesgameslocation, sdlauncher.ini, snes, snesgameslocation, 0
+IniRead, sneshidemouse, sdlauncher.ini, snes, sneshidemouse, 0
+
+;static
+IniRead, snesname, sdlauncher.ini, snes, snesname, Snes9x
+iniread, latestsnes, sdlauncher.ini, snes, latestsnes, https://github.com/ProfgLX/snes9xLightgun/releases/latest/download/Snes9x.Lightgun.Edition.zip
+iniread, snessize, sdlauncher.ini, snes, snessize, 2116383
+iniread, snesdocs, sdlauncher.ini, snes, snesdocs, https://www.snes9x.com/
+IniRead, sneswiki, sdlauncher.ini, snes, sneswiki, https://sindenlightgun.miraheze.org/wiki/SNES9X
+IniRead, snesvideo, sdlauncher.ini, snes, snesvideo, https://www.youtube.com/watch?v=yvP_-KLqLQE
+
+
+; Sanity Checks
 
 if (p1sindenlocation=0) ; set the default
 	p1sindenlocation=%A_ScriptDir%\tools\SindenLightgun1
 if (p2sindenlocation=0) ; set the default
 		p2sindenlocation=%A_ScriptDir%\tools\SindenLightgun2
 
-; Sanity Checks
 
 if (numParams > 0) 
 {
@@ -63,9 +84,9 @@ if (numParams > 0)
 		return
 	}
 	
-	if systemParam not in ps1  ; if the system provided is not one of the list
+	if !systems.Haskey(systemParam)  ; if the system provided is not one of the list
 	{	
-		MsgBox, 8208, System not recognized, I don't recognize system %systemParam%.`r`nAvailable system is: PS1
+		MsgBox, 8208, System not recognized, I don't recognize system %systemParam%.
 		ExitApp
 	}
 	if (numParams = 1)
@@ -245,13 +266,21 @@ getFolderFilelist(ps1gameslocation,"ps1gamelist")
 
 ;bezel preview
 gui, main:submit, nohide
+Gui, main:add, text, x217 y570 w377 h20 center vps1bezelMessage, Game bezel not found - Using generic
 SplitPath, ps1gamelist,,,,ps1gamenoext
 if !FileExist(ps1bezelslocation "\" ps1gamenoext ".png")
+{ 
 	currentBezel = generic
+	GuiControl, main:show, ps1bezelMessage
+}
 else
+{
 	currentBezel = %ps1gamenoext%
+	GuiControl, main:hide, ps1bezelMessage
+}
 Gui, main:add, picture, x215 y338 w381 h216 vbackground, %A_ScriptDir%\lib\1px.png
 Gui, main:add, picture, x217 y340 w377 h212 vbezelPreview, %A_ScriptDir%\SindenBezels\ps1\%currentBezel%.png
+
 
 ;selected game options
 Gui, main:Add, Button, x680 y300 w100 h20 gPlay , Play
@@ -302,12 +331,12 @@ IfMsgBox, OK
 return
 Wiki2:
 Gui, Submit, NoHide
-	run, https://sindenlightgun.miraheze.org/wiki/Duckstation
+	run, %ps1wiki%
 return
 
 Video2:
 Gui, Submit, NoHide
-	run, https://youtu.be/OvyUvxzBLOc
+	run, %ps1video%
 return
 
 
@@ -452,9 +481,15 @@ ps1gamelist:
 gui, main:submit, nohide
 SplitPath, ps1gamelist,,,,ps1gamenoext
 if !FileExist(ps1bezelslocation "\" ps1gamenoext ".png")
+{
 	currentBezel = generic
+	GuiControl, main:show, ps1bezelMessage
+}
 else
+{
 	currentBezel = %ps1gamenoext%
+	GuiControl, main:hide, ps1bezelMessage
+}
 GuiControl, main:, bezelPreview, %A_ScriptDir%\SindenBezels\ps1\%currentBezel%.png
 gosub Save
 return
@@ -481,6 +516,8 @@ if (Errorlevel = 0)
 	FileCopy, %newBezel%, %ps1bezelslocation%\%ps1gamenoext%.png, 1
 	currentBezel = %ps1gamenoext%
 	GuiControl, main:, bezelPreview, %A_ScriptDir%\SindenBezels\ps1\%currentBezel%.png
+	GuiControl, main:hide, bezelMessage
+
 }
 else
 { 
