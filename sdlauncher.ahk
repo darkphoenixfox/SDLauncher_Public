@@ -12,6 +12,7 @@ SetWinDelay, -1
 #Include, %A_ScriptDir%\lib\nonomousy.lib ; hidecursor() / showcursor()
 #Include, %A_ScriptDir%\lib\emudownloader.lib ; HashFile(filepath, "MD5") || emudownloader(DMemuname,DMfullfilename,DMtotalFilesize,DMdocumentation)
 
+showcursor()
 ; capture the parameters given to the program
 numParams = %0% ;0 1 or 2
 systemParam = %1% ;ps1 snes || ps2 mame or demul 
@@ -41,8 +42,10 @@ IniRead, ps1gameslocation, sdlauncher.ini, ps1, ps1gameslocation, 0
 IniRead, ps1hidemouse, sdlauncher.ini, ps1, ps1hidemouse, 0
 
 ;static
+IniRead, ps1systemname, sdlauncher.ini, ps1, ps1systemname, PlayStation
 IniRead, ps1name, sdlauncher.ini, ps1, ps1name, Duckstation
 iniread, latestps1, sdlauncher.ini, ps1, latestps1, https://github.com/stenzek/duckstation/releases/download/latest/duckstation-windows-x64-release.zip
+iniread, ps1manualdownload, launcher.ini, ps1, ps1manualdownload, https://github.com/stenzek/duckstation/releases/tag/latest
 iniread, ps1size, sdlauncher.ini, ps1, ps1size, 21641575
 iniread, ps1docs, sdlauncher.ini, ps1, ps1docs, https://github.com/stenzek/duckstation
 IniRead, ps1wiki, sdlauncher.ini, ps1, ps1wiki, https://sindenlightgun.miraheze.org/wiki/Duckstation
@@ -60,8 +63,10 @@ IniRead, snesgameslocation, sdlauncher.ini, snes, snesgameslocation, 0
 IniRead, sneshidemouse, sdlauncher.ini, snes, sneshidemouse, 0
 
 ;static
+IniRead, snessystemname, sdlauncher.ini, snes, snessystemname, SuperNES
 IniRead, snesname, sdlauncher.ini, snes, snesname, Snes9x
 iniread, latestsnes, sdlauncher.ini, snes, latestsnes, https://github.com/ProfgLX/snes9xLightgun/releases/latest/download/Snes9x.Lightgun.Edition.zip
+iniread, snesmanualdownload, launcher.ini, snes, snesmanualdownload, https://github.com/ProfgLX/snes9xLightgun/releases/latest
 iniread, snessize, sdlauncher.ini, snes, snessize, 2116383
 iniread, snesdocs, sdlauncher.ini, snes, snesdocs, https://www.snes9x.com/
 IniRead, sneswiki, sdlauncher.ini, snes, sneswiki, https://sindenlightgun.miraheze.org/wiki/SNES9X
@@ -101,8 +106,16 @@ if (numParams > 0)
 			MsgBox, 8208, Game missing, Can't find the game in:'n'n%gameParam%
 			ExitApp
 		}
-		SplitPath, gamePAram,ps1gamelist,ps1gameslocation
-		Gosub Play
+		if (systemParam="ps1")
+		{
+			SplitPath, gamePAram,ps1gamelist,ps1gameslocation
+			Gosub Playps1
+		}
+		if (systemParam="snes")
+		{
+			SplitPath, gameParam,snesgamelist,snesgameslocation
+			Gosub Playsnes
+		}
 		return
 	}
 }
@@ -126,7 +139,7 @@ return
 showUI:
 ;Gui, main:Add, Tab3, W800 H600 Center, General||PS1|PS2|SNES|Demul|Tools|Run Game ; full version
 
-Gui, main:Add, Tab3, w800 h600 Center, Sinden||Playstation ; lite version
+Gui, main:Add, Tab3, w800 h600 Center, Sinden||Playstation | SNES ;lite version
 
 
 
@@ -212,14 +225,14 @@ if (numberofguns=1)
 
 ;Playstation 1 TAB -----------   Playstation 1 TAB -----------   Playstation 1 TAB -----------   Playstation 1 TAB -----------   Playstation 1 TAB -----------   
 Gui, main:Tab, 2 
-Gui, main:Add, Picture, x735 y545 vDiskIcon2, %A_ScriptDir%\lib\disk.png
-GuiControl, main:hide, DiskIcon2
-Gui, main:Add, Text, x30 y72 w150 h20 , Duckstation
-Gui, main:Add, Button, x150 y70 w100 h20 gWizard2, Installation Wizard
+Gui, main:Add, Picture, x735 y545 vDiskIconps1, %A_ScriptDir%\lib\disk.png
+GuiControl, main:hide, DiskIconps1
+Gui, main:Add, Text, x30 y72 w150 h20 , %ps1name%
+Gui, main:Add, Button, x150 y70 w100 h20 gWizardps1, Installation Wizard
 Gui, main:Add, Text, x260 y72 w150 h20 , - or - 
-Gui, main:Add, Button, x290 y70 w100 h20 gDown2 , Manual Download
-Gui, main:Add, Button, x430 y70 w140 h20 gWiki2, Duckstation Sinden Wiki
-Gui, main:Add, Button, x610 y70 w140 h20 gVideo2, Video guide
+Gui, main:Add, Button, x290 y70 w100 h20 gDownps1 , Manual Download
+Gui, main:Add, Button, x430 y70 w140 h20 gWikips1, %ps1name% Sinden Wiki
+Gui, main:Add, Button, x610 y70 w140 h20 gVideops1, Video guide
 
 Gui, main:Add, Text, x70 y122 w150 h20 , Emulator Location
 if (ps1emulocation=0) ;set the default
@@ -261,7 +274,7 @@ Gui, main:Add, Button, x680 y240 w100 h20 gps1gameslocationBrowser , Browse
 ;game browser
 Gui, main:Add, Text, x70 y302 w150 h20 , Game Launcher
 Gui, main:Add, DropDownList, x180 y300 w490 r6 gps1gamelist vps1gamelist,
-getFolderFilelist(ps1gameslocation,"ps1gamelist")
+getFolderFilelistps1(ps1gameslocation,"ps1gamelist")
 
 
 ;bezel preview
@@ -278,33 +291,128 @@ else
 	currentBezel = %ps1gamenoext%
 	GuiControl, main:hide, ps1bezelMessage
 }
-Gui, main:add, picture, x215 y338 w381 h216 vbackground, %A_ScriptDir%\lib\1px.png
-Gui, main:add, picture, x217 y340 w377 h212 vbezelPreview, %A_ScriptDir%\SindenBezels\ps1\%currentBezel%.png
+Gui, main:add, picture, x215 y338 w381 h216 vbackgroundps1, %A_ScriptDir%\lib\1px.png
+Gui, main:add, picture, x217 y340 w377 h212 vbezelPreviewps1, %A_ScriptDir%\SindenBezels\ps1\%currentBezel%.png
 
 
 ;selected game options
-Gui, main:Add, Button, x680 y300 w100 h20 gPlay , Play
-Gui, main:Add, Button, x680 y330 w100 h20 gShortcut vShortcut, Create Shortcut
+Gui, main:Add, Button, x680 y300 w100 h20 gPlayps1 , Play
+Gui, main:Add, Button, x680 y330 w100 h20 gShortcutps1 vShortcutps1, Create Shortcut
 If FileExist(ps1emulocation) &&	 Instr(ps1emulocation, ".exe")
 {
-	GuiControl, main:Enable, Shortcut
-	GuiControl, main:Enable, Play
+	GuiControl, main:Enable, Shortcutps1
+	GuiControl, main:Enable, Playps1
+}
+else
+{
+	GuiControl, main:Disable, Shortcutps1
+	GuiControl, main:Disable, Playps1
+}
+
+Gui, main:Add, Button, x680 y360 w100 h20 gChangeBezelps1 vChangeBezelps1, Change Bezel
+
+
+
+;SNES TAB -----------   SNES TAB -----------   SNES TAB -----------   SNES TAB -----------   SNES TAB -----------   
+Gui, main:Tab, 3
+Gui, main:Add, Picture, x735 y545 vDiskIconsnes, %A_ScriptDir%\lib\disk.png
+GuiControl, main:hide, DiskIconsnes
+Gui, main:Add, Text, x30 y72 w150 h20 , %snesname%
+Gui, main:Add, Button, x150 y70 w100 h20 gWizardsnes, Installation Wizard
+Gui, main:Add, Text, x260 y72 w150 h20 , - or - 
+Gui, main:Add, Button, x290 y70 w100 h20 gDownsnes , Manual Download
+Gui, main:Add, Button, x430 y70 w140 h20 gWikisnes, %snesname% Sinden Wiki
+Gui, main:Add, Button, x610 y70 w140 h20 gVideosnes, Video guide
+
+Gui, main:Add, Text, x70 y122 w150 h20 , Emulator Location
+if (snesemulocation=0) ;set the default
+	snesemulocation=Path to emulator executable
+Gui, main:Add, Edit, x180 y120 w490 h20 vsnesemulocation gsnesemulocation, %snesemulocation%
+Gui, main:Add, Button, x680 y120 w100 h20 gsnesemulocationBrowse , Browse
+
+Gui, main:Add, Text, x70 y152 w150 h20 , Emulator parameters
+if (snesparameters=0) ;set the default
+	snesparameters:="-fullscreen -port2 superscope"
+Gui, main:Add, Edit, x180 y150 w490 h20 vsnesparameters gsnesparameters, %snesparameters%
+Gui, main:Add, Button, x680 y150 w100 h20 gsnesparametersDefault , Default
+
+Gui, main:Add, Text, x70 y182 w150 h20 , Bezels Location
+if (snesbezelslocation=0) ; set the default
+	snesbezelslocation=%A_ScriptDir%\SindenBezels\snes
+Gui, main:Add, Edit, x180 y180 w490 h20 vsnesbezelslocation gsnesbezelslocation, %snesbezelslocation%
+Gui, main:Add, Button, x680 y180 w100 h20 gsnesbezelslocationBrowse , Browse
+
+Gui, main:add, text, x70 y212 w150 h20, Hide Mouse
+Gui, main:add, CheckBox, x180 y215 vsneshidemouse gsneshidemouse,
+Gui, main:add, Button, x350 y210 vsnesconfigure gsnesconfigure, Configure Emulator
+If FileExist(snesemulocation) &&	 Instr(snesemulocation, ".exe")
+{
+	GuiControl, main:Enable, snesconfigure
+}
+else
+{
+	GuiControl, main:Disable, snesconfigure
+}
+GuiControl, main:, sneshidemouse, %sneshidemouse% ; set the default/ ini value
+
+Gui, main:Add, Text, x70 y242 w150 h20 , Games Location
+if (snesgameslocation=0) ; set the default
+	snesgameslocation=Select your games folder
+Gui, main:Add, Edit, x180 y240 w490 h20 vsnesgameslocation gsnesgameslocation, %snesgameslocation%
+Gui, main:Add, Button, x680 y240 w100 h20 gsnesgameslocationBrowser , Browse
+
+;game browser
+Gui, main:Add, Text, x70 y302 w150 h20 , Game Launcher
+Gui, main:Add, DropDownList, x180 y300 w490 r6 gsnesgamelist vsnesgamelist,
+getFolderFilelistsnes(snesgameslocation,"snesgamelist")
+
+
+;bezel preview
+gui, main:submit, nohide
+Gui, main:add, text, x217 y570 w377 h20 center vsnesbezelMessage, Game bezel not found - Using generic
+SplitPath, snesgamelist,,,,snesgamenoext
+if !FileExist(snesbezelslocation "\" snesgamenoext ".png")
+{ 
+	currentBezel = generic
+	GuiControl, main:show, snesbezelMessage
+}
+else
+{
+	currentBezel = %snesgamenoext%
+	GuiControl, main:hide, snesbezelMessage
+}
+Gui, main:add, picture, x215 y338 w381 h216 vbackgroundsnes, %A_ScriptDir%\lib\1px.png
+Gui, main:add, picture, x217 y340 w377 h212 vbezelPreviewsnes, %A_ScriptDir%\SindenBezels\snes\%currentBezel%.png
+
+
+;selected game options
+Gui, main:Add, Button, x680 y300 w100 h20 gPlaysnes , Play
+Gui, main:Add, Button, x680 y330 w100 h20 gShortcutsnes vShortcutsnes, Create Shortcut
+If FileExist(snesemulocation) &&	 Instr(snesemulocation, ".exe")
+{
+	GuiControl, main:Enable, Shortcutsnes
+	GuiControl, main:Enable, Playsnes
 }
 else
 {
 	GuiControl, main:Disable, Shortcut
-	GuiControl, main:Disable, Play
+	GuiControl, main:Disable, Playsnes
 }
 
-Gui, main:Add, Button, x680 y360 w100 h20 gChangeBezel vChangeBezel, Change Bezel
+Gui, main:Add, Button, x680 y360 w100 h20 gChangeBezelsnes vChangeBezelsnes, Change Bezel
 
 
+
+
+
+; add extra tabs before this-----------------------------------------------------------
 Gui, main:Show,  Center h600, SindenLauncher
 Return  
 
+
 ; Playstation Buttons   ---------    Playstation Buttons   ---------    Playstation Buttons   ---------    Playstation Buttons   ---------    Playstation Buttons   ---------   
 
-Wizard2: ;-------  Duckstation wizard  -------  Duckstation wizard  -------  Duckstation wizard  -------  Duckstation wizard  -------  Duckstation wizard  -------  Duckstation wizard  
+Wizardps1: ;-------  Duckstation wizard  -------  Duckstation wizard  -------  Duckstation wizard  -------  Duckstation wizard  -------  Duckstation wizard  -------  Duckstation wizard  
 ps1emulocation := emudownloader(ps1name,latestps1,ps1size,ps1docs)"\duckstation-qt-x64-ReleaseLTCG.exe"
 GuiControl, main:, ps1emulocation, %ps1emulocation%
 sleep 200
@@ -323,18 +431,18 @@ iniwrite, %ps1emulocation%, sdlauncher.ini, ps1, ps1emulocation
 return
 ;-------  Duckstation wizard END  -------  Duckstation wizard END -------  Duckstation wizard END -------  Duckstation wizard END  -------  Duckstation wizard END -------  Duckstation wizard  END 
 
-Down2: ;manual download
+Downps1: ;manual download
 Gui, Submit, NoHide
 MsgBox, 8257, Download from the official github, 1- On the browser window you will find the `"Latest Development Build`"`n`n2- Find where it says `" ▷ Assets`" and click it to expand the file list.`n`n3- Click on `"duckstation-windows-x64-release.zip`" to download the file
 IfMsgBox, OK
-	run, https://github.com/stenzek/duckstation/releases/tag/latest
+	run, %ps1manualdownload%
 return
-Wiki2:
+Wikips1:
 Gui, Submit, NoHide
 	run, %ps1wiki%
 return
 
-Video2:
+Videops1:
 Gui, Submit, NoHide
 	run, %ps1video%
 return
@@ -397,7 +505,7 @@ iniwrite, %ps1bezelslocation%, sdlauncher.ini, ps1, ps1bezelslocation
 gosub Save
 return
 ps1bezelslocationBrowse: ; Browse for ps1 bezel folder
-FileSelectFolder, ps1bezelslocation, *%A_ScriptDir%\SindenBezels\ps1, 3, Select your Playstation bezel folder
+FileSelectFolder, ps1bezelslocation, *%A_ScriptDir%\SindenBezels\ps1, 3, Select your %ps1systemname% bezel folder
 if (Errorlevel = 0)
 	GuiControl, main:, ps1bezelslocation, %ps1bezelslocation%
 Gui, main:Submit, NoHide
@@ -418,7 +526,7 @@ return
  
 ps1gameslocation:
 Gui, main:Submit, NoHide
-getFolderFilelist(ps1gameslocation,"ps1gamelist")
+getFolderFilelistps1(ps1gameslocation,"ps1gamelist")
 Gui, main:Submit, NoHide
 iniwrite, %ps1gameslocation%, sdlauncher.ini, ps1, ps1gameslocation
 if FileExist(ps1emufolder "\settings.ini")
@@ -428,11 +536,11 @@ if FileExist(ps1emufolder "\settings.ini")
 gosub Save
 return
 ps1gameslocationBrowser:
-FileSelectFolder, ps1gameslocation, *%A_ScriptDir%\games\ps1, 3, Select your Playstation games folder
+FileSelectFolder, ps1gameslocation, *%A_ScriptDir%\games\ps1, 3, Select your %ps1systemname% games folder
 if (Errorlevel = 0)
 {
 	GuiControl, main:, ps1gameslocation, %ps1gameslocation%
-	getFolderFilelist(ps1gameslocation,"ps1gamelist")
+	getFolderFilelistps1(ps1gameslocation,"ps1gamelist")
 }
 Gui, main:Submit, NoHide
 iniwrite, %ps1gameslocation%, sdlauncher.ini, ps1, ps1gameslocation
@@ -444,9 +552,9 @@ gosub Save
 return
 
 
-Play:
+Playps1:
 Gui, main:submit, hide
-playing = 1
+playingps1 = 1
 SplitPath, ps1gamelist,,,,ps1gamenoext
 if !FileExist(ps1bezelslocation "\" ps1gamenoext ".png")
 	currentBezel = generic
@@ -490,18 +598,18 @@ else
 	currentBezel = %ps1gamenoext%
 	GuiControl, main:hide, ps1bezelMessage
 }
-GuiControl, main:, bezelPreview, %A_ScriptDir%\SindenBezels\ps1\%currentBezel%.png
+GuiControl, main:, bezelPreviewps1, %A_ScriptDir%\SindenBezels\ps1\%currentBezel%.png
 gosub Save
 return
 
-Shortcut:
+Shortcutps1:
 FileSelectFolder, shortcutLocation, *%A_Desktop%, 3, Select a folder to save the game shortcut
 SplitPath, ps1gamelist,,,,ps1gamenoext
 FileCreateShortcut, %A_ScriptFullPath%, %shortcutLocation%\%ps1gamenoext%.lnk,  "%A_ScriptFullPath%", ps1 "%ps1gameslocation%\%ps1gamelist%", Run %ps1gamenoext% with Sinden Bezels, %A_ScriptDir%\lib\Lightgun_BLACK.ico
 run, explorer.exe %shortcutLocation%
 return
 
-ChangeBezel:
+ChangeBezelps1:
 SplitPath, ps1gamelist,,,,ps1gamenoext
 Fileselectfile, newBezel, S3, %A_Scriptdir%\SindenBezels\ps1\%ps1gamenoext%.png, Select new bezel file for %ps1gamenoext%, Pictures (*.png)
 if (Errorlevel = 0)
@@ -515,7 +623,7 @@ if (Errorlevel = 0)
 	}
 	FileCopy, %newBezel%, %ps1bezelslocation%\%ps1gamenoext%.png, 1
 	currentBezel = %ps1gamenoext%
-	GuiControl, main:, bezelPreview, %A_ScriptDir%\SindenBezels\ps1\%currentBezel%.png
+	GuiControl, main:, bezelPreviewps1, %A_ScriptDir%\SindenBezels\ps1\%currentBezel%.png
 	GuiControl, main:hide, bezelMessage
 
 }
@@ -526,13 +634,236 @@ return
 return
 
 
+
+
+; SNES Buttons   ---------    SNES Buttons   ---------    SNES Buttons   ---------    SNES Buttons   ---------    SNES Buttons   ---------   
+
+Wizardsnes: ;-------  SNES wizard  -------  SNES wizard  -------  SNES wizard  -------  SNES wizard  -------  SNES wizard  -------  SNES wizard  
+snesemulocation := emudownloader(snesname,latestsnes,snessize,snesdocs)"\SNES9x.exe"
+GuiControl, main:, snesemulocation, %snesemulocation%
+sleep 200
+SplitPath, snesemulocation ,, snesemufolder
+FileAppend, , %snesemufolder%\portable.txt
+FileCopy, %A_scriptdir%\other\snes\*.*, %snesemufolder%\
+Gui, main:Submit, NoHide
+;SendMessage, 0x1330, 2,, SysTabControl321, WinTitle ; 0x1330 is TCM_SETCURFOCUS.
+iniwrite, %snesemulocation%, sdlauncher.ini, snes, snesemulocation
+
+return
+;-------  SNES wizard END  -------  SNES wizard END -------  SNES wizard END -------  SNES wizard END  -------  SNES wizard END -------  SNES wizard  END 
+
+Downsnes: ;manual download
+Gui, Submit, NoHide
+MsgBox, 8257, Download from the official github, 1- On the browser window you will find the `"Latest release`"`n`n2- Find where it says `" ▷ Assets`" and click it to expand the file list.`n`n3- Click on `"Snes9x.Lightgun.Edition.zip`" to download the file
+IfMsgBox, OK
+	run, %snesmanualdownload%
+return
+Wikisnes:
+Gui, Submit, NoHide
+	run, %sneswiki%
+return
+
+Videosnes:
+Gui, Submit, NoHide
+	run, %snesvideo%
+return
+
+
+
+snesemulocation:
+Gui, main:Submit, NoHide
+iniwrite, %snesemulocation%, sdlauncher.ini, snes, snesemulocation
+If FileExist(snesemulocation) &&	 Instr(snesemulocation, ".exe")
+{
+	GuiControl, main:Enable, Shortcut
+	GuiControl, main:Enable, Playsnes
+	GuiControl, main:Enable, snesconfigure
+}
+else
+{
+	GuiControl, main:Disable, Shortcutsnes
+	GuiControl, main:Disable, Playsnes
+	GuiControl, main:Disable, snesconfigure
+}
+gosub Save
+return
+snesemulocationBrowse: ; Browse for duckstation exe
+FileSelectFile, snesemulocation, S3,SNES9x.exe, Select the emulator executable, SNEX9x(SNES9x.exe)
+if (Errorlevel = 0)
+	GuiControl, main:, snesemulocation, %snesemulocation%
+If FileExist(snesemulocation) &&	 Instr(snesemulocation, ".exe")
+{
+	GuiControl, main:Enable, Shortcutsnes
+	GuiControl, main:Enable, Playsnes
+}
+else
+{
+	GuiControl, main:Disable, Shortcut
+	GuiControl, main:Disable, Playsnes
+}
+Gui, main:Submit, NoHide
+iniwrite, %snesemulocation%, sdlauncher.ini, snes, snesemulocation
+gosub Save
+return
+
+
+snesparameters:
+Gui, main:Submit, NoHide
+iniwrite, %snesparameters%, sdlauncher.ini, snes, snesparameters
+gosub Save
+return
+snesparametersDefault: ; Default parameters for Duckstation
+GuiControl, main:, snesparameters, -fullscreen -port2 superscope
+Gui, main:Submit, NoHide
+iniwrite, %snesparameters%, sdlauncher.ini, snes, snesparameters
+gosub Save
+return
+
+
+snesbezelslocation:
+Gui, main:Submit, NoHide
+iniwrite, %snesbezelslocation%, sdlauncher.ini, snes, snesbezelslocation
+gosub Save
+return
+snesbezelslocationBrowse: ; Browse for snes bezel folder
+FileSelectFolder, snesbezelslocation, *%A_ScriptDir%\SindenBezels\snes, 3, Select your %snessystemname% bezel folder
+if (Errorlevel = 0)
+	GuiControl, main:, snesbezelslocation, %snesbezelslocation%
+Gui, main:Submit, NoHide
+iniwrite, %snesbezelslocation%, sdlauncher.ini, snes, snesbezelslocation
+gosub Save
+return
+
+sneshidemouse: ; Default parameters for Duckstation
+Gui, main:Submit, NoHide
+iniwrite, %sneshidemouse%, sdlauncher.ini, snes, sneshidemouse
+gosub Save
+return
+
+snesconfigure:
+run, `"%snesemulocation%`"
+return
+ 
+ 
+snesgameslocation:
+Gui, main:Submit, NoHide
+getFolderFilelistsnes(snesgameslocation,"snesgamelist")
+Gui, main:Submit, NoHide
+gosub Save
+return
+snesgameslocationBrowser:
+FileSelectFolder, snesgameslocation, *%A_ScriptDir%\games\snes, 3, Select your %snessystemname% games folder
+if (Errorlevel = 0)
+{
+	GuiControl, main:, snesgameslocation, %snesgameslocation%
+	getFolderFilelistsnes(snesgameslocation,"snesgamelist")
+}
+Gui, main:Submit, NoHide
+iniwrite, %snesgameslocation%, sdlauncher.ini, snes, snesgameslocation
+gosub Save
+return
+
+
+Playsnes:
+Gui, main:submit, hide
+playingsnes = 1
+SysGet, m1, Monitor, 1
+LeftPixel := Floor((m1right - ((m1bottom/7)*8))/2)
+RightPixel := Floor(m1right - LeftPixel)
+SplitPath, snesgamelist,,,,snesgamenoext
+if !FileExist(snesbezelslocation "\" snesgamenoext ".png")
+	currentBezel = generic
+else
+	currentBezel = %snesgamenoext%
+run, `"%snesemulocation%`"  %snesparameters% `"%snesgameslocation%\%snesgamelist%`"  , %snesemufolder%
+Sleep 1000
+if(sneshidemouse=1)
+	hidecursor()
+sleep 300
+IfWinNotExist, frame
+{
+	SysGet, m1, Monitor, 1
+	CustomColor = 000000f  ; Can be any RGB color (it will be made transparent below).
+	Gui, 88:+Toolwindow
+	Gui, 88:+0x94C80000
+	Gui, 88:+E0x20 ; this makes this GUI clickthrough
+	Gui, 88:-Toolwindow
+	Gui, 88: +LastFound +AlwaysOnTop -Caption +ToolWindow  ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+	Gui, 88: Color, %CustomColor%
+	Gui, 88: Add, Picture, x0 y0 w%m1right% h%m1Bottom% BackGroundTrans, %snesbezelslocation%\%currentBezel%.png
+	WinSet, Style, -0xC40000, A
+	WinSet, TransColor, %CustomColor% ;150	; Make all pixels of this color transparent and make the text itself translucent (150)
+	Gui, 88: Show, x0 y0 w%m1right% h%m1Bottom%, NoActivate, frame ; NoActivate avoids deactivating the currently active window.
+	Gui, 88: Show, x0 y0 w%m1right% h%m1Bottom%, NoActivate, frame ; NoActivate avoids deactivating the currently active window.
+	WinHide, ahk_class Shell_TrayWnd
+	WinHide, ahk_class Shell_SecondaryTrayWnd
+
+}
+sleep, 300
+MouseClick , Left, 1000, 500, 1
+return
+
+snesgamelist:
+gui, main:submit, nohide
+SplitPath, snesgamelist,,,,snesgamenoext
+if !FileExist(snesbezelslocation "\" snesgamenoext ".png")
+{
+	currentBezel = generic
+	GuiControl, main:show, snesbezelMessage
+}
+else
+{
+	currentBezel = %snesgamenoext%
+	GuiControl, main:hide, snesbezelMessage
+}
+GuiControl, main:, bezelPreviewsnes, %A_ScriptDir%\SindenBezels\snes\%currentBezel%.png
+gosub Save
+return
+
+Shortcutsnes:
+FileSelectFolder, shortcutLocation, *%A_Desktop%, 3, Select a folder to save the game shortcut
+SplitPath, snesgamelist,,,,snesgamenoext
+FileCreateShortcut, %A_ScriptFullPath%, %shortcutLocation%\%snesgamenoext%.lnk,  "%A_ScriptFullPath%", snes "%snesgameslocation%\%snesgamelist%", Run %snesgamenoext% with Sinden Bezels, %A_ScriptDir%\lib\Lightgun_BLACK.ico
+run, explorer.exe %shortcutLocation%
+return
+
+ChangeBezelsnes:
+SplitPath, snesgamelist,,,,snesgamenoext
+Fileselectfile, newBezel, S3, %A_Scriptdir%\SindenBezels\snes\%snesgamenoext%.png, Select new bezel file for %snesgamenoext%, Pictures (*.png)
+if (Errorlevel = 0)
+{
+	if fileexist(snesbezelslocation "\" snesgamenoext ".png") ; make a backup of the existing bezel, if any
+	{
+		FormatTime, timestamp,, yyMMddHHmmss
+		if !fileexist(snesbezelslocation "\backup")
+			filecreatedir, %snesbezelslocation%\backup
+		FileCopy, %snesbezelslocation%\%snesgamenoext%.png,  %snesbezelslocation%\backup\backup_%timestamp%_%snesgamenoext%.png
+	}
+	FileCopy, %newBezel%, %snesbezelslocation%\%snesgamenoext%.png, 1
+	currentBezel = %snesgamenoext%
+	GuiControl, main:, bezelPreviewsnes, %A_ScriptDir%\SindenBezels\snes\%currentBezel%.png
+	GuiControl, main:hide, bezelMessage
+
+}
+else
+{ 
+return
+}
+return
+
+
+
+
+;----------------------------------------------------------------------------------------------------------------------
+;----------------------------------------------------------------------------------------------------------------------
+
 Save: ;Settings saved tooltip
 ToolTip, Settings saved, 640 , 575
 GuiControl, main:show, DiskIcon
-GuiControl, main:show, DiskIcon2
+GuiControl, main:show, DiskIconps1
+GuiControl, main:show, DiskIconsnes
 SetTimer, RemoveToolTip, -3000
 return
-
 
 UpdateGUI:
 gui, main: submit, nohide
@@ -920,16 +1251,19 @@ isLicenseAccepted(FilePath) ;isLicenseAccepted(c:\Lightgun.exe.config)
     return 0
 }
 
-getFolderFilelist(FolderPath,guiVariable)
+getFolderFilelistps1(FolderPath,guiVariable)
 {
 
 	List = 
 	loop, Files, % FolderPath "\*.*"
 		{
-			
 			SplitPath, A_LoopFileName, Filename,,FileExtension
-			if(FileExtension="CUE" or FileExtension="CHD")
-				List .= FileName "|"
+			if(system=ps1)
+			{
+				if(FileExtension="CUE" or FileExtension="CHD")
+					List .= FileName "|"
+			}
+
 		}
 	List := RTrim(List, "|")
 	List := StrReplace(List, "|", "||",, 1) ; make first item default
@@ -939,6 +1273,23 @@ getFolderFilelist(FolderPath,guiVariable)
 
 }
 
+getFolderFilelistsnes(FolderPath,guiVariable)
+{
+
+	List = 
+	loop, Files, % FolderPath "\*.*"
+		{
+			SplitPath, A_LoopFileName, Filename,,FileExtension
+			if(FileExtension="zip" or FileExtension="bin" or FileExtension="smc" or FileExtension="sfc")
+				List .= FileName "|"
+		}
+	List := RTrim(List, "|")
+	List := StrReplace(List, "|", "||",, 1) ; make first item default
+	GuiControl,main:, %guiVariable%, |
+	GuiControl,main:, %guiVariable%, %List%
+	SplitPath, snesgamelist,,,,snesgamenoext
+
+}
 
 
 mainGuiClose:
@@ -956,6 +1307,15 @@ iniWrite, %ps1bezelslocation%, sdlauncher.ini, ps1, ps1bezelsLocation
 iniWrite, %ps1gameslocation%, sdlauncher.ini, ps1, ps1gameslocation
 iniWrite, %ps1hidemouse%, sdlauncher.ini, ps1, ps1hidemouse
 
+
+;[snes]
+IniWrite, %snesemulocation%, sdlauncher.ini, snes, snesemulocation
+IniWrite, %snesparameters%, sdlauncher.ini, snes, snesparameters
+IniWrite, %snesbezelslocation%, sdlauncher.ini, snes, snesbezelsLocation
+IniWrite, %snesgameslocation%, sdlauncher.ini, snes, snesgameslocation
+IniWrite, %sneshidemouse%, sdlauncher.ini, snes, sneshidemouse
+
+
 if FileExist(ps1emufolder "\settings.ini")
 {
 	iniwrite, %ps1gameslocation%, %ps1emufolder%\settings.ini, GameList, Paths
@@ -966,7 +1326,8 @@ ExitApp
 RemoveToolTip:
 ToolTip
 GuiControl, main:Hide, DiskIcon
-GuiControl, main:hide, DiskIcon2
+GuiControl, main:hide, DiskIconps1
+GuiControl, main:hide, DiskIconsnes
 return
 
 
@@ -980,7 +1341,7 @@ Reload
 return
 
 
-#If (playing)
+#If (playingps1)
 $Esc::
 showcursor()
 Process,Close,Duckstation PS1 Emulator
@@ -988,7 +1349,23 @@ Run,taskkill /im "duckstation-qt-x64-ReleaseLTCG.exe" /F
 WinShow, ahk_class Shell_TrayWnd
 WinShow, ahk_class Shell_SecondaryTrayWnd
 gui, 88:destroy
-playing = 0
+playingps1 = 0
+if (numParams = 0)
+	gui, main: show
+else
+	ExitApp
+#If
+
+#If (playingsnes)
+$Esc::
+showcursor()
+Process,Close,SNES9x
+Run,taskkill /im "snes9x.exe" /F
+WinShow, ahk_class Shell_TrayWnd
+WinShow, ahk_class Shell_SecondaryTrayWnd
+gui, 88:destroy
+playingsnes = 0
+Run,taskkill /im "snes9x.exe" /F
 if (numParams = 0)
 	gui, main: show
 else
