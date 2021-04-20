@@ -4,5 +4,5 @@ sdlauncher.ini
 /temp/
 /gitignore
 /emulators
-SDLauncher.zip
+*.zip
 pack.bat
