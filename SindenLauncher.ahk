@@ -1,4 +1,5 @@
-﻿#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+﻿;SDLauncher by Fox for the Sinden Lightgun
+#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 #SingleInstance Force
@@ -244,27 +245,35 @@ Gui, main:Add, Button, x290 y70 w100 h20 gDownps1 , Manual Download
 Gui, main:Add, Button, x430 y70 w140 h20 gWikips1, %ps1name% Sinden Wiki
 Gui, main:Add, Button, x610 y70 w140 h20 gVideops1, Video guide
 
-Gui, main:Add, Text, x70 y122 w150 h20 , Emulator Location
+Gui, main:Add, Text, x70 y132 w150 h20 , Emulator Location
 if (ps1emulocation=0) ;set the default
 	ps1emulocation=Path to emulator executable
-Gui, main:Add, Edit, x180 y120 w490 h20 vps1emulocation gps1emulocation, %ps1emulocation%
-Gui, main:Add, Button, x680 y120 w100 h20 gps1emulocationBrowse , Browse
+Gui, main:Add, Edit, x180 y130 w490 h20 vps1emulocation gps1emulocation, %ps1emulocation%
+Gui, main:Add, Button, x680 y130 w100 h20 gps1emulocationBrowse , Browse
 
-Gui, main:Add, Text, x70 y152 w150 h20 , Emulator parameters
+Gui, main:Add, Text, x70 y162 w150 h20 , Emulator parameters
 if (ps1parameters=0) ;set the default
 	ps1parameters:="-fullscreen"
-Gui, main:Add, Edit, x180 y150 w490 h20 vps1parameters gps1parameters, %ps1parameters%
-Gui, main:Add, Button, x680 y150 w100 h20 gps1parametersDefault , Default
+Gui, main:Add, Edit, x180 y160 w490 h20 vps1parameters gps1parameters, %ps1parameters%
+Gui, main:Add, Button, x680 y160 w100 h20 gps1parametersDefault , Default
 
-Gui, main:Add, Text, x70 y182 w150 h20 , Bezels Location
-if (ps1bezelslocation=0) ; set the default
-	ps1bezelslocation=%A_ScriptDir%\SindenBezels\ps1
-Gui, main:Add, Edit, x180 y180 w490 h20 vps1bezelslocation gps1bezelslocation, %ps1bezelslocation%
-Gui, main:Add, Button, x680 y180 w100 h20 gps1bezelslocationBrowse , Browse
+Gui, main:Add, Text, x70 y192 w150 h20 , Games Location
+if (ps1gameslocation=0) ; set the default
+	ps1gameslocation=Select your games folder
+Gui, main:Add, Edit, x180 y190 w490 h20 vps1gameslocation gps1gameslocation, %ps1gameslocation%
+Gui, main:Add, Button, x680 y190 w100 h20 gps1gameslocationBrowser , Browse
 
-Gui, main:add, text, x70 y212 w150 h20, Hide Mouse
-Gui, main:add, CheckBox, x180 y215 vps1hidemouse gps1hidemouse,
-Gui, main:add, Button, x350 y210 vps1configure gps1configure, Configure Emulator
+;game browser
+Gui, main:Add, Text, x70 y222 w150 h20 , Game Launcher
+Gui, main:Add, DropDownList, x180 y220 w490 r6 gps1gamelist vps1gamelist,
+getFolderFilelistps1(ps1gameslocation,"ps1gamelist")
+;selected game options
+
+
+Gui, main:add, text, x115 y254 w150 h20, Hide Mouse
+GuiControl, main:, ps1hidemouse, %ps1hidemouse% ; set the default/ ini value
+Gui, main:add, CheckBox, x180 y255 vps1hidemouse gps1hidemouse,
+Gui, main:add, Button, x220 y250 w100 h20 vps1configure gps1configure, Configure Emulator
 If FileExist(ps1emulocation) &&	 Instr(ps1emulocation, ".exe")
 {
 	GuiControl, main:Enable, ps1configure
@@ -273,23 +282,33 @@ else
 {
 	GuiControl, main:Disable, ps1configure
 }
-GuiControl, main:, ps1hidemouse, %ps1hidemouse% ; set the default/ ini value
 
-Gui, main:Add, Text, x70 y242 w150 h20 , Games Location
-if (ps1gameslocation=0) ; set the default
-	ps1gameslocation=Select your games folder
-Gui, main:Add, Edit, x180 y240 w490 h20 vps1gameslocation gps1gameslocation, %ps1gameslocation%
-Gui, main:Add, Button, x680 y240 w100 h20 gps1gameslocationBrowser , Browse
+Gui, main:Add, Button, x370 y250 w100 h20 gShortcutps1 vShortcutps1, Create Shortcut
+If FileExist(ps1emulocation) &&	 Instr(ps1emulocation, ".exe")
+{
+	GuiControl, main:Enable, Shortcutps1
+	GuiControl, main:Enable, Playps1
+}
+else
+{
+	GuiControl, main:Disable, Shortcutps1
+	GuiControl, main:Disable, Playps1
+}
 
-;game browser
-Gui, main:Add, Text, x70 y302 w150 h20 , Game Launcher
-Gui, main:Add, DropDownList, x180 y300 w490 r6 gps1gamelist vps1gamelist,
-getFolderFilelistps1(ps1gameslocation,"ps1gamelist")
+Gui, main:Add, Button, x520 y250 w100 h20 gPlayps1 , Play
+
+
 
 
 ;bezel preview
+Gui, main:Add, Text, x70 y302 w150 h20 , Bezels Location
+if (ps1bezelslocation=0) ; set the default
+	ps1bezelslocation=%A_ScriptDir%\SindenBezels\ps1
+Gui, main:Add, Edit, x180 y300 w490 h20 vps1bezelslocation gps1bezelslocation, %ps1bezelslocation%
+Gui, main:Add, Button, x680 y300 w100 h20 gps1bezelslocationBrowse , Browse
+
 gui, main:submit, nohide
-Gui, main:Add, Text, x70 y440 w150 h20 , Bezel Preview
+Gui, main:Add, Text, x70 y442 w150 h20 , Bezel Preview
 Gui, main:add, text, x217 y570 w377 h20 center vps1bezelMessage, Game bezel not found - Using generic
 SplitPath, ps1gamelist,,,,ps1gamenoext
 if !FileExist(ps1bezelslocation "\" ps1gamenoext ".png")
@@ -302,25 +321,13 @@ else
 	currentBezel = %ps1gamenoext%
 	GuiControl, main:hide, ps1bezelMessage
 }
-Gui, main:add, picture, x215 y338 w381 h216 vbackgroundps1, %A_ScriptDir%\lib\1px.png
-Gui, main:add, picture, x217 y340 w377 h212 vbezelPreviewps1, %A_ScriptDir%\SindenBezels\ps1\%currentBezel%.png
+Gui, main:add, picture, x215 y343 w381 h216 vbackgroundps1, %A_ScriptDir%\lib\1px.png
+Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewps1, %A_ScriptDir%\SindenBezels\ps1\%currentBezel%.png
+Gui, main:Add, Button, x680 y440 w100 h20 gChangeBezelps1 vChangeBezelps1, Change Bezel
 
 
-;selected game options
-Gui, main:Add, Button, x680 y300 w100 h20 gPlayps1 , Play
-Gui, main:Add, Button, x680 y330 w100 h20 gShortcutps1 vShortcutps1, Create Shortcut
-If FileExist(ps1emulocation) &&	 Instr(ps1emulocation, ".exe")
-{
-	GuiControl, main:Enable, Shortcutps1
-	GuiControl, main:Enable, Playps1
-}
-else
-{
-	GuiControl, main:Disable, Shortcutps1
-	GuiControl, main:Disable, Playps1
-}
 
-Gui, main:Add, Button, x680 y360 w100 h20 gChangeBezelps1 vChangeBezelps1, Change Bezel
+
 
 
 
@@ -345,27 +352,35 @@ Gui, main:Add, Button, x290 y70 w100 h20 gDownsnes , Manual Download
 Gui, main:Add, Button, x430 y70 w140 h20 gWikisnes, %snesname% Sinden Wiki
 Gui, main:Add, Button, x610 y70 w140 h20 gVideosnes, Video guide
 
-Gui, main:Add, Text, x70 y122 w150 h20 , Emulator Location
+Gui, main:Add, Text, x70 y132 w150 h20 , Emulator Location
 if (snesemulocation=0) ;set the default
 	snesemulocation=Path to emulator executable
-Gui, main:Add, Edit, x180 y120 w490 h20 vsnesemulocation gsnesemulocation, %snesemulocation%
-Gui, main:Add, Button, x680 y120 w100 h20 gsnesemulocationBrowse , Browse
+Gui, main:Add, Edit, x180 y130 w490 h20 vsnesemulocation gsnesemulocation, %snesemulocation%
+Gui, main:Add, Button, x680 y130 w100 h20 gsnesemulocationBrowse , Browse
 
-Gui, main:Add, Text, x70 y152 w150 h20 , Emulator parameters
+Gui, main:Add, Text, x70 y162 w150 h20 , Emulator parameters
 if (snesparameters=0) ;set the default
-	snesparameters:="-fullscreen -port2 superscope"
-Gui, main:Add, Edit, x180 y150 w490 h20 vsnesparameters gsnesparameters, %snesparameters%
-Gui, main:Add, Button, x680 y150 w100 h20 gsnesparametersDefault , Default
+	snesparameters:="-fullscreen"
+Gui, main:Add, Edit, x180 y160 w490 h20 vsnesparameters gsnesparameters, %snesparameters%
+Gui, main:Add, Button, x680 y160 w100 h20 gsnesparametersDefault , Default
 
-Gui, main:Add, Text, x70 y182 w150 h20 , Bezels Location
-if (snesbezelslocation=0) ; set the default
-	snesbezelslocation=%A_ScriptDir%\SindenBezels\snes
-Gui, main:Add, Edit, x180 y180 w490 h20 vsnesbezelslocation gsnesbezelslocation, %snesbezelslocation%
-Gui, main:Add, Button, x680 y180 w100 h20 gsnesbezelslocationBrowse , Browse
+Gui, main:Add, Text, x70 y192 w150 h20 , Games Location
+if (snesgameslocation=0) ; set the default
+	snesgameslocation=Select your games folder
+Gui, main:Add, Edit, x180 y190 w490 h20 vsnesgameslocation gsnesgameslocation, %snesgameslocation%
+Gui, main:Add, Button, x680 y190 w100 h20 gsnesgameslocationBrowser , Browse
 
-Gui, main:add, text, x70 y212 w150 h20, Hide Mouse
-Gui, main:add, CheckBox, x180 y215 vsneshidemouse gsneshidemouse,
-Gui, main:add, Button, x350 y210 vsnesconfigure gsnesconfigure, Configure Emulator
+;game browser
+Gui, main:Add, Text, x70 y222 w150 h20 , Game Launcher
+Gui, main:Add, DropDownList, x180 y220 w490 r6 gsnesgamelist vsnesgamelist,
+getFolderFilelistsnes(snesgameslocation,"snesgamelist")
+;selected game options
+
+
+Gui, main:add, text, x115 y254 w150 h20, Hide Mouse
+GuiControl, main:, sneshidemouse, %sneshidemouse% ; set the default/ ini value
+Gui, main:add, CheckBox, x180 y255 vsneshidemouse gsneshidemouse,
+Gui, main:add, Button, x220 y250 w100 h20 vsnesconfigure gsnesconfigure, Configure Emulator
 If FileExist(snesemulocation) &&	 Instr(snesemulocation, ".exe")
 {
 	GuiControl, main:Enable, snesconfigure
@@ -374,23 +389,33 @@ else
 {
 	GuiControl, main:Disable, snesconfigure
 }
-GuiControl, main:, sneshidemouse, %sneshidemouse% ; set the default/ ini value
 
-Gui, main:Add, Text, x70 y242 w150 h20 , Games Location
-if (snesgameslocation=0) ; set the default
-	snesgameslocation=Select your games folder
-Gui, main:Add, Edit, x180 y240 w490 h20 vsnesgameslocation gsnesgameslocation, %snesgameslocation%
-Gui, main:Add, Button, x680 y240 w100 h20 gsnesgameslocationBrowser , Browse
+Gui, main:Add, Button, x370 y250 w100 h20 gShortcutsnes vShortcutsnes, Create Shortcut
+If FileExist(snesemulocation) &&	 Instr(snesemulocation, ".exe")
+{
+	GuiControl, main:Enable, Shortcutsnes
+	GuiControl, main:Enable, Playsnes
+}
+else
+{
+	GuiControl, main:Disable, Shortcutsnes
+	GuiControl, main:Disable, Playsnes
+}
 
-;game browser
-Gui, main:Add, Text, x70 y302 w150 h20 , Game Launcher
-Gui, main:Add, DropDownList, x180 y300 w490 r6 gsnesgamelist vsnesgamelist,
-getFolderFilelistsnes(snesgameslocation,"snesgamelist")
+Gui, main:Add, Button, x520 y250 w100 h20 gPlaysnes , Play
+
+
 
 
 ;bezel preview
+Gui, main:Add, Text, x70 y302 w150 h20 , Bezels Location
+if (snesbezelslocation=0) ; set the default
+	snesbezelslocation=%A_ScriptDir%\SindenBezels\snes
+Gui, main:Add, Edit, x180 y300 w490 h20 vsnesbezelslocation gsnesbezelslocation, %snesbezelslocation%
+Gui, main:Add, Button, x680 y300 w100 h20 gsnesbezelslocationBrowse , Browse
+
 gui, main:submit, nohide
-Gui, main:Add, Text, x70 y440 w150 h20 , Bezel Preview
+Gui, main:Add, Text, x70 y442 w150 h20 , Bezel Preview
 Gui, main:add, text, x217 y570 w377 h20 center vsnesbezelMessage, Game bezel not found - Using generic
 SplitPath, snesgamelist,,,,snesgamenoext
 if !FileExist(snesbezelslocation "\" snesgamenoext ".png")
@@ -403,26 +428,12 @@ else
 	currentBezel = %snesgamenoext%
 	GuiControl, main:hide, snesbezelMessage
 }
-Gui, main:add, picture, x215 y338 w381 h216 vbackgroundsnes, %A_ScriptDir%\lib\1px.png
-Gui, main:add, picture, x217 y340 w377 h212 vbezelPreviewsnes, %A_ScriptDir%\SindenBezels\snes\%currentBezel%.png
+Gui, main:add, picture, x215 y343 w381 h216 vbackgroundsnes, %A_ScriptDir%\lib\1px.png
+Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewsnes, %A_ScriptDir%\SindenBezels\snes\%currentBezel%.png
+Gui, main:Add, Button, x680 y440 w100 h20 gChangeBezelsnes vChangeBezelsnes, Change Bezel
 
 
-;selected game options
-Gui, main:Add, Button, x680 y300 w100 h20 gPlaysnes , Play
-Gui, main:Add, Button, x680 y330 w100 h20 gShortcutsnes vShortcutsnes, Create Shortcut
-If FileExist(snesemulocation) &&	 Instr(snesemulocation, ".exe")
-{
-	GuiControl, main:Enable, Shortcutsnes
-	GuiControl, main:Enable, Playsnes
-}
-else
-{
-	GuiControl, main:Disable, Shortcut
-	GuiControl, main:Disable, Playsnes
-}
-
-Gui, main:Add, Button, x680 y360 w100 h20 gChangeBezelsnes vChangeBezelsnes, Change Bezel
-
+; CREDITS TAB----------------------------------------------------------------------------------------------------------------------------------
 Gui, main:Tab, 4
 gui, main:font, s10
 gui, main:font, bold
@@ -442,7 +453,6 @@ Gui, main:Add, Link,, Duckstation: Stenzek. <a href="https://github.com/stenzek/
 Gui, main:add, text, ,
 Gui, main:Add, Link,, Snes9x: Snes9x Team. <a href="https://www.snes9x.com/">Snes9x.com</a>
 
-;  `n Prof_gLX: Code and Bezel Design `n `n Titchgamer (Bezels)`n  `n`n`n Sinden Software: Sinden Technology Ltd. `n`n  Duckstation: Stenzek (Connor McLaughlin) https://github.com/stenzek/duckstation `n`n Snes9x: Snes9x Team  https://www.snes9x.com/
 Gui, main:font
 
 
