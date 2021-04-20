@@ -231,9 +231,9 @@ GuiControl, main:hide, DiskIconps1
 Gui, main: font, bold
 if FileExist(a_scriptdir "\lib\" ps1name ".ico")
 {
-	Gui, main:Add, picture, x40 y30 w64 h64 vps1ico, %a_Scriptdir%\lib\%ps1name%.ico
+	Gui, main:Add, picture, x40 y40 w64 h64 vps1ico, %a_Scriptdir%\lib\%ps1name%.ico
 	
-	Gui, main:Add, Text, x22 y100 w100 h20 center, %ps1name%
+	Gui, main:Add, Text, x22 y110 w100 h20 center, %ps1name%
 	
 }
 else
@@ -338,9 +338,9 @@ GuiControl, main:hide, DiskIconsnes
 Gui, main: font, bold
 if FileExist(a_scriptdir "\lib\" snesname ".ico")
 {
-	Gui, main:Add, picture, x40 y30 w64 h64 vsnesico, %a_Scriptdir%\lib\%snesname%.ico
+	Gui, main:Add, picture, x40 y40 w64 h64 vsnesico, %a_Scriptdir%\lib\%snesname%.ico
 	
-	Gui, main:Add, Text, x22 y100 w100 h20 center, %snesname%
+	Gui, main:Add, Text, x22 y110 w100 h20 center, %snesname%
 	
 }
 else
