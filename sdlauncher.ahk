@@ -139,7 +139,7 @@ return
 showUI:
 ;Gui, main:Add, Tab3, W800 H600 Center, General||PS1|PS2|SNES|Demul|Tools|Run Game ; full version
 
-Gui, main:Add, Tab3, w800 h600 Center, Sinden||Playstation | SNES ;lite version
+Gui, main:Add, Tab3, w800 h600 Center, Sinden||Playstation | SNES | Credits ;lite version
 
 
 
@@ -227,7 +227,17 @@ if (numberofguns=1)
 Gui, main:Tab, 2 
 Gui, main:Add, Picture, x735 y545 vDiskIconps1, %A_ScriptDir%\lib\disk.png
 GuiControl, main:hide, DiskIconps1
-Gui, main:Add, Text, x30 y72 w150 h20 , %ps1name%
+Gui, main: font, bold
+if FileExist(a_scriptdir "\lib\" ps1name ".ico")
+{
+	Gui, main:Add, picture, x40 y30 w64 h64 vps1ico, %a_Scriptdir%\lib\%ps1name%.ico
+	
+	Gui, main:Add, Text, x22 y100 w100 h20 center, %ps1name%
+	
+}
+else
+	Gui, main:Add, Text, x30 y72 w150 h20 , %ps1name%
+Gui, main: font
 Gui, main:Add, Button, x150 y70 w100 h20 gWizardps1, Installation Wizard
 Gui, main:Add, Text, x260 y72 w150 h20 , - or - 
 Gui, main:Add, Button, x290 y70 w100 h20 gDownps1 , Manual Download
@@ -317,7 +327,17 @@ Gui, main:Add, Button, x680 y360 w100 h20 gChangeBezelps1 vChangeBezelps1, Chang
 Gui, main:Tab, 3
 Gui, main:Add, Picture, x735 y545 vDiskIconsnes, %A_ScriptDir%\lib\disk.png
 GuiControl, main:hide, DiskIconsnes
-Gui, main:Add, Text, x30 y72 w150 h20 , %snesname%
+Gui, main: font, bold
+if FileExist(a_scriptdir "\lib\" snesname ".ico")
+{
+	Gui, main:Add, picture, x40 y30 w64 h64 vsnesico, %a_Scriptdir%\lib\%snesname%.ico
+	
+	Gui, main:Add, Text, x22 y100 w100 h20 center, %snesname%
+	
+}
+else
+	Gui, main:Add, Text, x30 y72 w150 h20 , %snesname%
+Gui, main: font
 Gui, main:Add, Button, x150 y70 w100 h20 gWizardsnes, Installation Wizard
 Gui, main:Add, Text, x260 y72 w150 h20 , - or - 
 Gui, main:Add, Button, x290 y70 w100 h20 gDownsnes , Manual Download
@@ -401,14 +421,39 @@ else
 
 Gui, main:Add, Button, x680 y360 w100 h20 gChangeBezelsnes vChangeBezelsnes, Change Bezel
 
+Gui, main:Tab, 4
+gui, main:font, s10
+gui, main:font, bold
+Gui, main:Add, Text, x40 y40 w800, Credits:
+gui, main:font, norm
+Gui, main:Add, Link,, Fox: Concept and code. <a href="https://twitter.com/akaJCT">@akaJCT</a>
+Gui, main:add, text, , Pete: Code and Bezel design
+Gui, main:add, text, , thatman84: Testing
+Gui, main:add, text, , Prof_gLX: Code and Bezel Design
+Gui, main:add, text, , Javice: Testing and Wiki tutorials
+Gui, main:add, text, , Zerelito: Bezel design
+Gui, main:Add, Link,, Titchgamer: Bezels and video tutorials. <a href="https://youtube.com/c/AndyJohnsonTRG">Titch's Youtube channel</a>
+Gui, main:add, text, ,
+Gui, main:Add, Link,, Sinden Software: <a href="https://www.sindenlightgun.com/">Titch's Sinden Technology Ltd.</a>
+Gui, main:add, text, ,
+Gui, main:Add, Link,, Duckstation: Stenzek. <a href="https://github.com/stenzek/duckstation">Duckstation github.</a>
+Gui, main:add, text, ,
+Gui, main:Add, Link,, Snes9x: Snes9x Team. <a href="https://www.snes9x.com/">Snes9x.com</a>
+
+;  `n Prof_gLX: Code and Bezel Design `n `n Titchgamer (Bezels)`n  `n`n`n Sinden Software: Sinden Technology Ltd. `n`n  Duckstation: Stenzek (Connor McLaughlin) https://github.com/stenzek/duckstation `n`n Snes9x: Snes9x Team  https://www.snes9x.com/
+Gui, main:font
 
 
 
 
 ; add extra tabs before this-----------------------------------------------------------
-Gui, main:Show,  Center h600, SindenLauncher
-Return  
 
+Gui, main:Show,  Center h600, SindenLauncher
+Return
+
+LaunchGoogle:
+Run www.google.com
+return
 
 ; Playstation Buttons   ---------    Playstation Buttons   ---------    Playstation Buttons   ---------    Playstation Buttons   ---------    Playstation Buttons   ---------   
 
