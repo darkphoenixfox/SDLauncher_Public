@@ -289,6 +289,7 @@ getFolderFilelistps1(ps1gameslocation,"ps1gamelist")
 
 ;bezel preview
 gui, main:submit, nohide
+Gui, main:Add, Text, x70 y440 w150 h20 , Bezel Preview
 Gui, main:add, text, x217 y570 w377 h20 center vps1bezelMessage, Game bezel not found - Using generic
 SplitPath, ps1gamelist,,,,ps1gamenoext
 if !FileExist(ps1bezelslocation "\" ps1gamenoext ".png")
@@ -389,6 +390,7 @@ getFolderFilelistsnes(snesgameslocation,"snesgamelist")
 
 ;bezel preview
 gui, main:submit, nohide
+Gui, main:Add, Text, x70 y440 w150 h20 , Bezel Preview
 Gui, main:add, text, x217 y570 w377 h20 center vsnesbezelMessage, Game bezel not found - Using generic
 SplitPath, snesgamelist,,,,snesgamenoext
 if !FileExist(snesbezelslocation "\" snesgamenoext ".png")
