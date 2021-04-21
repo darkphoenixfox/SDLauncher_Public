@@ -29,17 +29,17 @@ FileCreateDir, %a_scriptdir%\temp
 
 ;[general]
 iniread, numberofguns, sdlauncher.ini, general, numberofguns, 1
-iniread, p1sindenlocation, sdlauncher.ini, general, p1sindenlocation, 0
-iniread, p2sindenlocation, sdlauncher.ini, general, p2sindenlocation, 0
+iniread, p1sindenlocation, sdlauncher.ini, general, p1sindenlocation, %A_ScriptDir%
+iniread, p2sindenlocation, sdlauncher.ini, general, p2sindenlocation, %A_ScriptDir%
 iniread, latestsoftware, sdlauncher.ini, general, latestsoftware, https://www.sindenlightgun.com/software/SindenLightgunSoftwareReleaseV1.05b.zip
 iniread, softwaresize, sdlauncher.ini, general, softwaresize, 23855276
 iniread, softwarehash, sdlauncher.ini, general, softwarehash, 1672dc77d6cc505bd47cb85ffbf9b393
 
 ;[ps1]
-IniRead, ps1emulocation, sdlauncher.ini, ps1, ps1emulocation, 0 
+IniRead, ps1emulocation, sdlauncher.ini, ps1, ps1emulocation, %A_ScriptDir% 
 IniRead, ps1parameters, sdlauncher.ini, ps1, ps1parameters, 0
-IniRead, ps1bezelslocation, sdlauncher.ini, ps1, ps1bezelsLocation, 0
-IniRead, ps1gameslocation, sdlauncher.ini, ps1, ps1gameslocation, 0
+IniRead, ps1bezelslocation, sdlauncher.ini, ps1, ps1bezelsLocation, %A_ScriptDir%\SindenBezels\ps1
+IniRead, ps1gameslocation, sdlauncher.ini, ps1, ps1gameslocation, 0 %A_ScriptDir%
 IniRead, ps1hidemouse, sdlauncher.ini, ps1, ps1hidemouse, 0
 
 ;static
@@ -57,10 +57,10 @@ SplitPath, ps1emulocation ,, ps1emufolder
 
 
 ;[snes]
-IniRead, snesemulocation, sdlauncher.ini, snes, snesemulocation, 0 
+IniRead, snesemulocation, sdlauncher.ini, snes, snesemulocation, %A_ScriptDir%
 IniRead, snesparameters, sdlauncher.ini, snes, snesparameters, 0
-IniRead, snesbezelslocation, sdlauncher.ini, snes, snesbezelsLocation, 0
-IniRead, snesgameslocation, sdlauncher.ini, snes, snesgameslocation, 0
+IniRead, snesbezelslocation, sdlauncher.ini, snes, snesbezelsLocation, %A_ScriptDir%\SindenBezels\snes
+IniRead, snesgameslocation, sdlauncher.ini, snes, snesgameslocation, %A_ScriptDir%
 IniRead, sneshidemouse, sdlauncher.ini, snes, sneshidemouse, 0
 
 ;static
@@ -76,10 +76,10 @@ IniRead, snesvideo, sdlauncher.ini, snes, snesvideo, https://www.youtube.com/wat
 SplitPath, snesemulocation ,, snesemufolder
 
 ;[mame]
-IniRead, mameemulocation, sdlauncher.ini, mame, mameemulocation, 0 
+IniRead, mameemulocation, sdlauncher.ini, mame, mameemulocation, %A_ScriptDir% 
 IniRead, mameparameters, sdlauncher.ini, mame, mameparameters, 0
-IniRead, mamebezelslocation, sdlauncher.ini, mame, mamebezelsLocation, 0
-IniRead, mamegameslocation, sdlauncher.ini, mame, mamegameslocation, 0
+IniRead, mamebezelslocation, sdlauncher.ini, mame, mamebezelsLocation, %A_ScriptDir%\other\Mame\Artwork
+IniRead, mamegameslocation, sdlauncher.ini, mame, mamegameslocation, %A_ScriptDir%
 IniRead, mamehidemouse, sdlauncher.ini, mame, mamehidemouse, 0
 
 ;static
@@ -211,7 +211,7 @@ If !FileExist(p1sindenlocation "\Lightgun.exe")
 
 Gui, main:Add, Text, x370 y132 w150 h20 , Path:
 Gui, main:Add, Edit, x400 y130 w290 h20 vp1sindenlocation gp1sindenlocation, %p1sindenlocation%
-Gui, main:Add, Button, x700 y130 w100 h20 gp1sindenlocationBrowse , Browse
+Gui, main:Add, Button, x700 y130 w100 h20 gp1sindenlocationBrowse vp1sindenlocationBrowse , Browse
 
 
 
@@ -275,7 +275,7 @@ Gui, main:Add, Text, x70 y132 w150 h20 , Emulator Location
 if (ps1emulocation=0) ;set the default
 	ps1emulocation=Path to emulator executable
 Gui, main:Add, Edit, x180 y130 w490 h20 vps1emulocation gps1emulocation, %ps1emulocation%
-Gui, main:Add, Button, x680 y130 w100 h20 gps1emulocationBrowse , Browse
+Gui, main:Add, Button, x680 y130 w100 h20 gps1emulocationBrowse vps1emulocationBrowse , Browse
 
 Gui, main:Add, Text, x70 y162 w150 h20 , Emulator parameters
 if (ps1parameters=0) ;set the default
@@ -287,7 +287,7 @@ Gui, main:Add, Text, x70 y192 w150 h20 , Games Location
 if (ps1gameslocation=0) ; set the default
 	ps1gameslocation=Select your games folder
 Gui, main:Add, Edit, x180 y190 w490 h20 vps1gameslocation gps1gameslocation, %ps1gameslocation%
-Gui, main:Add, Button, x680 y190 w100 h20 gps1gameslocationBrowser , Browse
+Gui, main:Add, Button, x680 y190 w100 h20 gps1gameslocationBrowser vps1gameslocationBrowser , Browse
 
 ;game browser
 Gui, main:Add, Text, x70 y222 w150 h20 , Game Launcher
@@ -331,7 +331,7 @@ Gui, main:Add, Text, x70 y302 w150 h20 , Bezels Location
 if (ps1bezelslocation=0) ; set the default
 	ps1bezelslocation=%A_ScriptDir%\SindenBezels\ps1
 Gui, main:Add, Edit, x180 y300 w490 h20 vps1bezelslocation gps1bezelslocation, %ps1bezelslocation%
-Gui, main:Add, Button, x680 y300 w100 h20 gps1bezelslocationBrowse , Browse
+Gui, main:Add, Button, x680 y300 w100 h20 gps1bezelslocationBrowse vps1bezelslocationBrowse, Browse
 
 gui, main:submit, nohide
 Gui, main:Add, Text, x70 y442 w150 h20 , Bezel Preview
@@ -382,7 +382,7 @@ Gui, main:Add, Text, x70 y132 w150 h20 , Emulator Location
 if (snesemulocation=0) ;set the default
 	snesemulocation=Path to emulator executable
 Gui, main:Add, Edit, x180 y130 w490 h20 vsnesemulocation gsnesemulocation, %snesemulocation%
-Gui, main:Add, Button, x680 y130 w100 h20 gsnesemulocationBrowse , Browse
+Gui, main:Add, Button, x680 y130 w100 h20 gsnesemulocationBrowse vsnesemulocationBrowse, Browse
 
 Gui, main:Add, Text, x70 y162 w150 h20 , Emulator parameters
 if (snesparameters=0) ;set the default
@@ -394,7 +394,7 @@ Gui, main:Add, Text, x70 y192 w150 h20 , Games Location
 if (snesgameslocation=0) ; set the default
 	snesgameslocation=Select your games folder
 Gui, main:Add, Edit, x180 y190 w490 h20 vsnesgameslocation gsnesgameslocation, %snesgameslocation%
-Gui, main:Add, Button, x680 y190 w100 h20 gsnesgameslocationBrowser , Browse
+Gui, main:Add, Button, x680 y190 w100 h20 gsnesgameslocationBrowser vsnesgameslocationBrowser , Browse
 
 ;game browser
 Gui, main:Add, Text, x70 y222 w150 h20 , Game Launcher
@@ -438,7 +438,7 @@ Gui, main:Add, Text, x70 y302 w150 h20 , Bezels Location
 if (snesbezelslocation=0) ; set the default
 	snesbezelslocation=%A_ScriptDir%\SindenBezels\snes
 Gui, main:Add, Edit, x180 y300 w490 h20 vsnesbezelslocation gsnesbezelslocation, %snesbezelslocation%
-Gui, main:Add, Button, x680 y300 w100 h20 gsnesbezelslocationBrowse , Browse
+Gui, main:Add, Button, x680 y300 w100 h20 gsnesbezelslocationBrowse vsnesbezelslocationBrowse, Browse
 
 gui, main:submit, nohide
 Gui, main:Add, Text, x70 y442 w150 h20 , Bezel Preview
@@ -484,7 +484,7 @@ Gui, main:Add, Text, x70 y132 w150 h20 , Emulator Location
 if (mameemulocation=0) ;set the default
 	mameemulocation=Path to emulator executable
 Gui, main:Add, Edit, x180 y130 w490 h20 vmameemulocation gmameemulocation, %mameemulocation%
-Gui, main:Add, Button, x680 y130 w100 h20 gmameemulocationBrowse , Browse
+Gui, main:Add, Button, x680 y130 w100 h20 gmameemulocationBrowse vgmameemulocationBrowse, Browse
 
 Gui, main:Add, Text, x70 y162 w150 h20 , Emulator parameters
 if (mameparameters=0) ;set the default
@@ -496,7 +496,7 @@ Gui, main:Add, Text, x70 y192 w150 h20 , Games Location
 if (mamegameslocation=0) ; set the default
 	mamegameslocation=Select your games folder
 Gui, main:Add, Edit, x180 y190 w490 h20 vmamegameslocation gmamegameslocation, %mamegameslocation%
-Gui, main:Add, Button, x680 y190 w100 h20 gmamegameslocationBrowser , Browse
+Gui, main:Add, Button, x680 y190 w100 h20 gmamegameslocationBrowser vmamegameslocationBrowser , Browse
 
 ;game browser
 Gui, main:Add, Text, x70 y222 w150 h20 , Game Launcher
@@ -538,10 +538,8 @@ Gui, main:Add, Button, x520 y250 w100 h20 gPlaymame vPlaymame , Play
 
 ;bezel preview
 Gui, main:Add, Text, x70 y302 w150 h20 , Bezels Location
-if (mamebezelslocation=0) ; set the default
-	mamebezelslocation=%A_ScriptDir%\other\mame\artwork
 Gui, main:Add, Edit, x180 y300 w490 h20 vmamebezelslocation gmamebezelslocation, %mamebezelslocation%
-Gui, main:Add, Button, x680 y300 w100 h20 gmamebezelslocationBrowse , Browse
+Gui, main:Add, Button, x680 y300 w100 h20 gmamebezelslocationBrowse vmamebezelslocationBrowse , Browse
 
 gui, main:submit, nohide
 Gui, main:Add, Text, x70 y442 w150 h20 , Bezel Preview
@@ -653,7 +651,7 @@ else
 gosub Save
 return
 ps1emulocationBrowse: ; Browse for duckstation exe
-FileSelectFile, ps1emulocation, S3,duckstation-qt-x64-ReleaseLTCG.exe, Select the emulator executable, duckstation-qt (duckstation-qt-x64-ReleaseLTCG.exe)
+FileSelectFile, ps1emulocation, S3, %ps1emulocation%, Select the emulator executable, duckstation-qt (duckstation-qt-x64-ReleaseLTCG.exe)
 if (Errorlevel = 0)
 	GuiControl, main:, ps1emulocation, %ps1emulocation%
 If FileExist(ps1emulocation) &&	 Instr(ps1emulocation, ".exe")
@@ -693,7 +691,7 @@ iniwrite, %ps1bezelslocation%, sdlauncher.ini, ps1, ps1bezelslocation
 gosub Save
 return
 ps1bezelslocationBrowse: ; Browse for ps1 bezel folder
-FileSelectFolder, ps1bezelslocation, *%A_ScriptDir%\SindenBezels\ps1, 3, Select your %ps1systemname% bezel folder
+FileSelectFolder, ps1bezelslocation, *%ps1bezelslocation%, 3, Select your %ps1systemname% bezel folder
 if (Errorlevel = 0)
 	GuiControl, main:, ps1bezelslocation, %ps1bezelslocation%
 Gui, main:Submit, NoHide
@@ -724,7 +722,7 @@ if FileExist(ps1emufolder "\settings.ini")
 gosub Save
 return
 ps1gameslocationBrowser:
-FileSelectFolder, ps1gameslocation, *%A_ScriptDir%\games\ps1, 3, Select your %ps1systemname% games folder
+FileSelectFolder, ps1gameslocation, *%ps1gameslocation%, 3, Select your %ps1systemname% games folder
 if (Errorlevel = 0)
 {
 	GuiControl, main:, ps1gameslocation, %ps1gameslocation%
@@ -799,7 +797,7 @@ return
 
 ChangeBezelps1:
 SplitPath, ps1gamelist,,,,ps1gamenoext
-Fileselectfile, newBezel, S3, %A_Scriptdir%\SindenBezels\ps1\%ps1gamenoext%.png, Select new bezel file for %ps1gamenoext%, Pictures (*.png)
+Fileselectfile, newBezel, S3, %ps1bezelslocation%\%ps1gamenoext%.png, Select new bezel file for %ps1gamenoext%, Pictures (*.png)
 if (Errorlevel = 0)
 {
 	if fileexist(ps1bezelslocation "\" ps1gamenoext ".png") ; make a backup of the existing bezel, if any
@@ -876,7 +874,7 @@ else
 gosub Save
 return
 snesemulocationBrowse: ; Browse for duckstation exe
-FileSelectFile, snesemulocation, S3,SNES9x.exe, Select the emulator executable, SNEX9x(SNES9x.exe)
+FileSelectFile, snesemulocation, S3,%snesemulocation%, Select the emulator executable, SNEX9x(SNES9x.exe)
 if (Errorlevel = 0)
 	GuiControl, main:, snesemulocation, %snesemulocation%
 If FileExist(snesemulocation) &&	 Instr(snesemulocation, ".exe")
@@ -916,7 +914,7 @@ iniwrite, %snesbezelslocation%, sdlauncher.ini, snes, snesbezelslocation
 gosub Save
 return
 snesbezelslocationBrowse: ; Browse for snes bezel folder
-FileSelectFolder, snesbezelslocation, *%A_ScriptDir%\SindenBezels\snes, 3, Select your %snessystemname% bezel folder
+FileSelectFolder, snesbezelslocation, *%snesbezelslocation%, 3, Select your %snessystemname% bezel folder
 if (Errorlevel = 0)
 	GuiControl, main:, snesbezelslocation, %snesbezelslocation%
 Gui, main:Submit, NoHide
@@ -942,7 +940,7 @@ Gui, main:Submit, NoHide
 gosub Save
 return
 snesgameslocationBrowser:
-FileSelectFolder, snesgameslocation, *%A_ScriptDir%\games\snes, 3, Select your %snessystemname% games folder
+FileSelectFolder, snesgameslocation, *%snesgameslocation%, 3, Select your %snessystemname% games folder
 if (Errorlevel = 0)
 {
 	GuiControl, main:, snesgameslocation, %snesgameslocation%
@@ -1019,7 +1017,7 @@ return
 
 ChangeBezelsnes:
 SplitPath, snesgamelist,,,,snesgamenoext
-Fileselectfile, newBezel, S3, %A_Scriptdir%\SindenBezels\snes\%snesgamenoext%.png, Select new bezel file for %snesgamenoext%, Pictures (*.png)
+Fileselectfile, newBezel, S3, %snesbezelslocation%\%snesgamenoext%.png, Select new bezel file for %snesgamenoext%, Pictures (*.png)
 if (Errorlevel = 0)
 {
 	if fileexist(snesbezelslocation "\" snesgamenoext ".png") ; make a backup of the existing bezel, if any
@@ -1098,7 +1096,7 @@ else
 gosub Save
 return
 mameemulocationBrowse: ; Browse for duckstation exe
-FileSelectFile, mameemulocation, S3,mame.exe, Select the emulator executable, MAME (mame.exe)
+FileSelectFile, mameemulocation, S3,%mameemulocation%, Select the emulator executable, MAME (mame.exe)
 if (Errorlevel = 0)
 	GuiControl, main:, mameemulocation, %mameemulocation%
 If FileExist(mameemulocation) &&	 Instr(mameemulocation, ".exe")
@@ -1148,7 +1146,7 @@ FileDelete, %mameemufolder%\temp.ini
 gosub Save
 return
 mamebezelslocationBrowse: ; Browse for mame bezel folder
-FileSelectFolder, mamebezelslocation, *%mameemufolder%\artwork, 3, Select your %mamesystemname% artwork folder
+FileSelectFolder, mamebezelslocation, *%mamebezelslocation%, 3, Select your %mamesystemname% artwork folder
 if (Errorlevel = 0)
 	GuiControl, main:, mamebezelslocation, %mamebezelslocation%
 Gui, main:Submit, NoHide
@@ -1194,7 +1192,7 @@ FileDelete, %mameemufolder%\temp.ini
 gosub Save
 return
 mamegameslocationBrowser:
-FileSelectFolder, mamegameslocation, *%A_ScriptDir%\emulators\mame\roms, 3, Select your %mamesystemname% games folder
+FileSelectFolder, mamegameslocation, *%mamegameslocation%, 3, Select your %mamesystemname% games folder
 if (Errorlevel = 0)
 {
 	GuiControl, main:, mamegameslocation, %mamegameslocation%
@@ -1252,7 +1250,7 @@ return
 
 ChangeBezelmame:
 SplitPath, mamegamelist,,,,mamegamenoext
-FileSelectFolder, newBezel, *%A_Scriptdir%\emulators\mame\artwork\%mamegamenoext% , 3, Select new artwork folder for %mamegamenoext%
+FileSelectFolder, newBezel, *%mamebezelslocation% , 3, Select new artwork folder for %mamegamenoext%
 if (Errorlevel = 0)
 {
 	if fileexist(mamebezelslocation "\" mamegamenoext "\" ) ; make a backup of the existing bezel, if any
@@ -1386,7 +1384,7 @@ iniwrite, %p1sindenlocation%, sdlauncher.ini, general, p1sindenlocation
 gosub UpdateGUI
 return
 p1sindenlocationBrowse: ; Browse for SindenLightgun folder P1
-FileSelectFolder, p1sindenlocation, *%A_ScriptDir%\tools\SindenLightgun1, 3, Select your Sinden Software folder for Player 1 gun
+FileSelectFolder, p1sindenlocation, *%p1sindenlocation%, 3, Select your Sinden Software folder for Player 1 gun
 if (Errorlevel = 0)
 	GuiControl, main:, p1sindenlocation, %p1sindenlocation%
 gosub UpdateGUI
@@ -1465,7 +1463,7 @@ iniwrite, %p2sindenlocation%, sdlauncher.ini, general, p2sindenlocation
 gosub UpdateGUI
 return
 p2sindenlocationBrowse: ; Browse for SindenLightgun folder P2
-FileSelectFolder, p2sindenlocation, *%A_ScriptDir%\tools\SindenLightgun2, 3, Select your Sinden Software folder for Player 2 gun
+FileSelectFolder, p2sindenlocation, *%p2sindenlocation%, 3, Select your Sinden Software folder for Player 2 gun
 if (Errorlevel = 0)
 	GuiControl, main:, p2sindenlocation, %p2sindenlocation%
 gosub UpdateGUI
