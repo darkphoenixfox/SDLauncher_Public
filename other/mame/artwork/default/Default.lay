@@ -1,0 +1,335 @@
+<!-- bbusters.lay -->
+<mamelayout version="2">
+  <element name="BezelStandard1">
+    <image file="BezelStandard1.png" />
+  </element>
+  <element name="BezelStandard2">
+    <image file="BezelStandard2.png" />
+  </element>
+  <element name="BezelWide1">
+    <image file="BezelWide1.png" />
+  </element>
+  <element name="BezelWide2">
+    <image file="BezelWide2.png" />
+  </element>
+  <element name="BorderStandard">
+    <image file="BorderStandard.png" />
+  </element>
+  <element name="BorderWide">
+    <image file="BorderWide.png" />
+  </element>
+  <element name="DarkStandard50">
+    <image file="DarkStandard50.png" />
+  </element>
+  <element name="DarkStandard60">
+    <image file="DarkStandard60.png" />
+  </element>
+  <element name="DarkStandard70">
+    <image file="DarkStandard70.png" />
+  </element>
+  <element name="DarkStandard80">
+    <image file="DarkStandard80.png" />
+  </element>
+  <element name="DarkWide50">
+    <image file="DarkWide50.png" />
+  </element>
+  <element name="DarkWide60">
+    <image file="DarkWide60.png" />
+  </element>
+  <element name="DarkWide70">
+    <image file="DarkWide70.png" />
+  </element>
+  <element name="DarkWide80">
+    <image file="DarkWide80.png" />
+  </element>
+
+
+  <view name="Sinden Standard Border Bezel #1 50%">
+    <element ref="BezelStandard1">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="DarkStandard50">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderStandard">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+
+  <view name="Sinden Standard Border Bezel #1 60%">
+    <element ref="BezelStandard1">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="DarkStandard60">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderStandard">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+
+  <view name="Sinden Standard Border Bezel #1 70%">
+    <element ref="BezelStandard1">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="DarkStandard70">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderStandard">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+
+  <view name="Sinden Standard Border #1 Bezel 80%">
+    <element ref="BezelStandard1">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="DarkStandard80">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderStandard">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+
+
+  <view name="Sinden Wide Border Bezel #1 50%">
+    <element ref="BezelWide1">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="DarkWide50">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderWide">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+
+  <view name="Sinden Wide Border Bezel #1 60%">
+    <element ref="BezelWide1">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="DarkWide60">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderWide">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+
+  <view name="Sinden Wide Border Bezel #1 70%">
+    <element ref="BezelWide1">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="DarkWide70">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderWide">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+  <view name="Sinden Wide Border Bezel #1 80%">
+    <element ref="BezelWide1">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="DarkWide80">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderWide">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+
+  <view name="Sinden Standard Border Bezel #2 50%">
+    <element ref="BezelStandard2">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="DarkStandard50">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderStandard">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+
+  <view name="Sinden Standard Border Bezel #2 60%">
+    <element ref="BezelStandard2">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="DarkStandard60">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderStandard">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+
+  <view name="Sinden Standard Border Bezel #2 70%">
+    <element ref="BezelStandard2">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="DarkStandard70">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderStandard">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+
+  <view name="Sinden Standard Border #2 Bezel 80%">
+    <element ref="BezelStandard2">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="DarkStandard80">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderStandard">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+
+
+  <view name="Sinden Wide Border Bezel #2 50%">
+    <element ref="BezelWide2">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="DarkWide50">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderWide">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+
+  <view name="Sinden Wide Border Bezel #2 60%">
+    <element ref="BezelWide2">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="DarkWide60">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderWide">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+
+  <view name="Sinden Wide Border Bezel #2 70%">
+    <element ref="BezelWide2">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="DarkWide70">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderWide">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+  <view name="Sinden Wide Border Bezel #2 80%">
+    <element ref="BezelWide2">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="DarkWide80">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderWide">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+
+  <view name="Sinden Standard Border Lighter Bezel #1">
+    <element ref="BezelStandard1">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderStandard">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+
+  <view name="Sinden Wide Border Lighter Bezel #1">
+    <element ref="BezelWide1">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderWide">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+
+  <view name="Sinden Standard Border Lighter Bezel #2">
+    <element ref="BezelStandard2">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderStandard">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+
+  <view name="Sinden Wide Border Lighter Bezel #2">
+    <element ref="BezelWide2">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <element ref="BorderWide">
+      <bounds left="0" top="0" right="1920" bottom="1080" />
+    </element>
+    <screen index="0">
+      <bounds left="240" top="12" right="1682" bottom="1068" />
+    </screen>
+  </view>
+
+</mamelayout>

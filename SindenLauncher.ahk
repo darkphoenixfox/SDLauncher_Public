@@ -16,16 +16,16 @@ SetWinDelay, -1
 showcursor()
 ; capture the parameters given to the program
 numParams = %0% ;0 1 or 2
-systemParam = %1% ;ps1 snes || ps2 mame or demul 
+systemParam = %1% ;system
 gameParam = %2% ; iso name with full path
 systems := [] ; Init array
 ;.systems := [ps1,ps2,snes,demul,mame]
-systems := {"ps1":0,"snes":0}
+systems := {"ps1":0,"snes":0,"mame":0}
 
 FileCreateDir, %a_scriptdir%\temp
 
 
-; read the ini file sdlauncher.ini
+; -------------------------------------------------read the ini file sdlauncher.ini
 
 ;[general]
 iniread, numberofguns, sdlauncher.ini, general, numberofguns, 1
@@ -73,8 +73,29 @@ iniread, snesdocs, sdlauncher.ini, snes, snesdocs, https://www.snes9x.com/
 IniRead, sneswiki, sdlauncher.ini, snes, sneswiki, https://sindenlightgun.miraheze.org/wiki/SNES9X
 IniRead, snesvideo, sdlauncher.ini, snes, snesvideo, https://www.youtube.com/watch?v=yvP_-KLqLQE
 
+SplitPath, snesemulocation ,, snesemufolder
 
-; Sanity Checks
+;[mame]
+IniRead, mameemulocation, sdlauncher.ini, mame, mameemulocation, 0 
+IniRead, mameparameters, sdlauncher.ini, mame, mameparameters, 0
+IniRead, mamebezelslocation, sdlauncher.ini, mame, mamebezelsLocation, 0
+IniRead, mamegameslocation, sdlauncher.ini, mame, mamegameslocation, 0
+IniRead, mamehidemouse, sdlauncher.ini, mame, mamehidemouse, 0
+
+;static
+IniRead, mamesystemname, sdlauncher.ini, mame, mamesystemname, MAME
+IniRead, mamename, sdlauncher.ini, mame, mamename, MAME
+iniread, latestmame, sdlauncher.ini, mame, latestmame, https://github.com/mamedev/mame/releases/download/mame0230/mame0230b_64bit.exe
+iniread, mamemanualdownload, launcher.ini, mame, mamemanualdownload, https://www.mamedev.org/release.html
+iniread, mamesize, sdlauncher.ini, mame, mamesize, 85856256
+iniread, mamedocs, sdlauncher.ini, mame, mamedocs, https://docs.mamedev.org/
+IniRead, mamewiki, sdlauncher.ini, mame, mamewiki, https://sindenlightgun.miraheze.org/wiki/Mame
+IniRead, mamevideo, sdlauncher.ini, mame, mamevideo, https://www.youtube.com/watch?v=CAvVOjOWaxk
+
+SplitPath, mameemulocation ,, mameemufolder
+
+;---------------------------------------------------------INI END -----------------------------------------
+
 
 if (p1sindenlocation=0) ; set the default
 	p1sindenlocation=%A_ScriptDir%\tools\SindenLightgun1
@@ -102,9 +123,9 @@ if (numParams > 0)
 	}
 	if (numParams = 2)
 	{
-		If !FileExist(gameParam)
+		If !FileExist(gameParam) && !Fileexist(mamegameslocation "\" gameParam ".zip")
 		{
-			MsgBox, 8208, Game missing, Can't find the game in:'n'n%gameParam%
+			MsgBox, 8208, Game missing, Can't find the game:`n`n%gameParam%
 			ExitApp
 		}
 		if (systemParam="ps1")
@@ -116,6 +137,11 @@ if (numParams > 0)
 		{
 			SplitPath, gameParam,snesgamelist,snesgameslocation
 			Gosub Playsnes
+		}
+		if (systemParam="mame")
+		{
+			SplitPath, gameParam,mamegamelist,mamegameslocation
+			Gosub Playmame
 		}
 		return
 	}
@@ -140,7 +166,7 @@ return
 showUI:
 ;Gui, main:Add, Tab3, W800 H600 Center, General||PS1|PS2|SNES|Demul|Tools|Run Game ; full version
 
-Gui, main:Add, Tab3, w800 h600 Center, Sinden||Playstation | SNES | Credits ;lite version
+Gui, main:Add, Tab3, w800 h600 Center, Sinden||Playstation | SNES | MAME | Credits ;lite version
 
 
 
@@ -295,7 +321,7 @@ else
 	GuiControl, main:Disable, Playps1
 }
 
-Gui, main:Add, Button, x520 y250 w100 h20 gPlayps1 , Play
+Gui, main:Add, Button, x520 y250 w100 h20 gPlayps1 vPlayps1 , Play
 
 
 
@@ -360,7 +386,7 @@ Gui, main:Add, Button, x680 y130 w100 h20 gsnesemulocationBrowse , Browse
 
 Gui, main:Add, Text, x70 y162 w150 h20 , Emulator parameters
 if (snesparameters=0) ;set the default
-	snesparameters:="-fullscreen"
+	snesparameters:="-fullscreen -port2 superscope"
 Gui, main:Add, Edit, x180 y160 w490 h20 vsnesparameters gsnesparameters, %snesparameters%
 Gui, main:Add, Button, x680 y160 w100 h20 gsnesparametersDefault , Default
 
@@ -402,7 +428,7 @@ else
 	GuiControl, main:Disable, Playsnes
 }
 
-Gui, main:Add, Button, x520 y250 w100 h20 gPlaysnes , Play
+Gui, main:Add, Button, x520 y250 w100 h20 gPlaysnes vPlaysnes, Play
 
 
 
@@ -433,8 +459,111 @@ Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewsnes, %A_ScriptDir%\Sin
 Gui, main:Add, Button, x680 y440 w100 h20 gChangeBezelsnes vChangeBezelsnes, Change Bezel
 
 
-; CREDITS TAB----------------------------------------------------------------------------------------------------------------------------------
+;mame TAB -----------   mame TAB -----------   mame TAB -----------   mame TAB -----------   mame TAB -----------   
 Gui, main:Tab, 4
+Gui, main:Add, Picture, x735 y545 vDiskIconmame, %A_ScriptDir%\lib\disk.png
+GuiControl, main:hide, DiskIconmame
+Gui, main: font, bold
+if FileExist(a_scriptdir "\lib\" mamename ".ico")
+{
+	Gui, main:Add, picture, x40 y40 w64 h64 vmameico, %a_Scriptdir%\lib\%mamename%.ico
+	
+	Gui, main:Add, Text, x22 y110 w100 h20 center, %mamename%
+	
+}
+else
+	Gui, main:Add, Text, x30 y72 w150 h20 , %mamename%
+Gui, main: font
+Gui, main:Add, Button, x150 y70 w100 h20 gWizardmame, Installation Wizard
+Gui, main:Add, Text, x260 y72 w150 h20 , - or - 
+Gui, main:Add, Button, x290 y70 w100 h20 gDownmame , Manual Download
+Gui, main:Add, Button, x430 y70 w140 h20 gWikimame, %mamename% Sinden Wiki
+Gui, main:Add, Button, x610 y70 w140 h20 gVideomame, Video guide
+
+Gui, main:Add, Text, x70 y132 w150 h20 , Emulator Location
+if (mameemulocation=0) ;set the default
+	mameemulocation=Path to emulator executable
+Gui, main:Add, Edit, x180 y130 w490 h20 vmameemulocation gmameemulocation, %mameemulocation%
+Gui, main:Add, Button, x680 y130 w100 h20 gmameemulocationBrowse , Browse
+
+Gui, main:Add, Text, x70 y162 w150 h20 , Emulator parameters
+if (mameparameters=0) ;set the default
+	mameparameters:="-keyboardprovider dinput"
+Gui, main:Add, Edit, x180 y160 w490 h20 vmameparameters gmameparameters, %mameparameters%
+Gui, main:Add, Button, x680 y160 w100 h20 gmameparametersDefault , Default
+
+Gui, main:Add, Text, x70 y192 w150 h20 , Games Location
+if (mamegameslocation=0) ; set the default
+	mamegameslocation=Select your games folder
+Gui, main:Add, Edit, x180 y190 w490 h20 vmamegameslocation gmamegameslocation, %mamegameslocation%
+Gui, main:Add, Button, x680 y190 w100 h20 gmamegameslocationBrowser , Browse
+
+;game browser
+Gui, main:Add, Text, x70 y222 w150 h20 , Game Launcher
+Gui, main:Add, DropDownList, x180 y220 w490 r6 gmamegamelist vmamegamelist,
+getFolderFilelistmame(mamegameslocation,"mamegamelist")
+;selected game options
+
+;MAME DOES NOT NEED TO HIDE THE MOUSE
+;Gui, main:add, text, x115 y254 w150 h20, Hide Mouse
+;GuiControl, main:, mamehidemouse, %mamehidemouse% ; set the default/ ini value
+;Gui, main:add, CheckBox, x180 y255 vmamehidemouse gmamehidemouse,
+
+Gui, main:add, Button, x220 y250 w100 h20 vmameconfigure gmameconfigure, Configure Emulator
+If FileExist(mameemulocation) &&	 Instr(mameemulocation, ".exe")
+{
+	GuiControl, main:Enable, mameconfigure
+}
+else
+{
+	GuiControl, main:Disable, mameconfigure
+}
+
+Gui, main:Add, Button, x370 y250 w100 h20 gShortcutmame vShortcutmame, Create Shortcut
+If FileExist(mameemulocation) &&	 Instr(mameemulocation, ".exe")
+{
+	GuiControl, main:Enable, Shortcutmame
+	GuiControl, main:Enable, Playmame
+}
+else
+{
+	GuiControl, main:Disable, Shortcutmame
+	GuiControl, main:Disable, Playmame
+}
+
+Gui, main:Add, Button, x520 y250 w100 h20 gPlaymame vPlaymame , Play
+
+
+
+
+;bezel preview
+Gui, main:Add, Text, x70 y302 w150 h20 , Bezels Location
+if (mamebezelslocation=0) ; set the default
+	mamebezelslocation=%A_ScriptDir%\other\mame\artwork
+Gui, main:Add, Edit, x180 y300 w490 h20 vmamebezelslocation gmamebezelslocation, %mamebezelslocation%
+Gui, main:Add, Button, x680 y300 w100 h20 gmamebezelslocationBrowse , Browse
+
+gui, main:submit, nohide
+Gui, main:Add, Text, x70 y442 w150 h20 , Bezel Preview
+Gui, main:add, text, x217 y570 w377 h20 center vmamebezelMessage, Game bezel not found - Using generic
+SplitPath, mamegamelist,,,,mamegamenoext
+if !FileExist(mamebezelslocation "\" mamegamenoext "\BezelStandard.png")
+{ 
+	currentBezel = default
+	GuiControl, main:show, mamebezelMessage
+}
+else
+{
+	currentBezel = %mamegamenoext%
+	GuiControl, main:hide, mamebezelMessage
+}
+Gui, main:add, picture, x215 y343 w381 h216 vbackgroundmame, %A_ScriptDir%\lib\1px.png
+Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewmame, %mamebezelslocation%\%currentbezel%\BezelStandard.png
+Gui, main:Add, Button, x680 y440 w100 h20 gChangeBezelmame vChangeBezelmame, Change Bezel
+
+
+; CREDITS TAB----------------------------------------------------------------------------------------------------------------------------------
+Gui, main:Tab, 5
 gui, main:font, s10
 gui, main:font, bold
 Gui, main:Add, Text, x40 y40 w800, Credits:
@@ -511,14 +640,14 @@ Gui, main:Submit, NoHide
 iniwrite, %ps1emulocation%, sdlauncher.ini, ps1, ps1emulocation
 If FileExist(ps1emulocation) &&	 Instr(ps1emulocation, ".exe")
 {
-	GuiControl, main:Enable, Shortcut
-	GuiControl, main:Enable, Play
+	GuiControl, main:Enable, Shortcutps1
+	GuiControl, main:Enable, Playps1
 	GuiControl, main:Enable, ps1configure
 }
 else
 {
-	GuiControl, main:Disable, Shortcut
-	GuiControl, main:Disable, Play
+	GuiControl, main:Disable, Shortcutps1
+	GuiControl, main:Disable, Playps1
 	GuiControl, main:Disable, ps1configure
 }
 gosub Save
@@ -529,13 +658,15 @@ if (Errorlevel = 0)
 	GuiControl, main:, ps1emulocation, %ps1emulocation%
 If FileExist(ps1emulocation) &&	 Instr(ps1emulocation, ".exe")
 {
-	GuiControl, main:Enable, Shortcut
-	GuiControl, main:Enable, Play
+	GuiControl, main:Enable, Shortcutps1
+	GuiControl, main:Enable, Playps1
+	GuiControl, main:Disable, ps1configure
 }
 else
 {
-	GuiControl, main:Disable, Shortcut
-	GuiControl, main:Disable, Play
+	GuiControl, main:Disable, Shortcutps1
+	GuiControl, main:Disable, Playps1
+	GuiControl, main:Disable, ps1configure
 }
 Gui, main:Submit, NoHide
 iniwrite, %ps1emulocation%, sdlauncher.ini, ps1, ps1emulocation
@@ -662,7 +793,7 @@ return
 Shortcutps1:
 FileSelectFolder, shortcutLocation, *%A_Desktop%, 3, Select a folder to save the game shortcut
 SplitPath, ps1gamelist,,,,ps1gamenoext
-FileCreateShortcut, %A_ScriptFullPath%, %shortcutLocation%\%ps1gamenoext%.lnk,  "%A_ScriptFullPath%", ps1 "%ps1gameslocation%\%ps1gamelist%", Run %ps1gamenoext% with Sinden Bezels, %A_ScriptDir%\lib\Lightgun_BLACK.ico
+FileCreateShortcut, %A_ScriptFullPath%, %shortcutLocation%\%ps1gamenoext%.lnk,  "%A_Scriptdir%", ps1 "%ps1gameslocation%\%ps1gamelist%", Run %ps1gamenoext% with Sinden Bezels, %A_ScriptDir%\lib\Lightgun_BLACK.ico
 run, explorer.exe %shortcutLocation%
 return
 
@@ -732,7 +863,7 @@ Gui, main:Submit, NoHide
 iniwrite, %snesemulocation%, sdlauncher.ini, snes, snesemulocation
 If FileExist(snesemulocation) &&	 Instr(snesemulocation, ".exe")
 {
-	GuiControl, main:Enable, Shortcut
+	GuiControl, main:Enable, Shortcutsnes
 	GuiControl, main:Enable, Playsnes
 	GuiControl, main:Enable, snesconfigure
 }
@@ -752,11 +883,13 @@ If FileExist(snesemulocation) &&	 Instr(snesemulocation, ".exe")
 {
 	GuiControl, main:Enable, Shortcutsnes
 	GuiControl, main:Enable, Playsnes
+	GuiControl, main:Disable, snesconfigure
 }
 else
 {
-	GuiControl, main:Disable, Shortcut
+	GuiControl, main:Disable, Shortcutsnes
 	GuiControl, main:Disable, Playsnes
+	GuiControl, main:Disable, snesconfigure
 }
 Gui, main:Submit, NoHide
 iniwrite, %snesemulocation%, sdlauncher.ini, snes, snesemulocation
@@ -798,7 +931,7 @@ gosub Save
 return
 
 snesconfigure:
-run, `"%snesemulocation%`"
+run, `"%snesemulocation%`", %snesemufolder%
 return
  
  
@@ -880,7 +1013,7 @@ return
 Shortcutsnes:
 FileSelectFolder, shortcutLocation, *%A_Desktop%, 3, Select a folder to save the game shortcut
 SplitPath, snesgamelist,,,,snesgamenoext
-FileCreateShortcut, %A_ScriptFullPath%, %shortcutLocation%\%snesgamenoext%.lnk,  "%A_ScriptFullPath%", snes "%snesgameslocation%\%snesgamelist%", Run %snesgamenoext% with Sinden Bezels, %A_ScriptDir%\lib\Lightgun_BLACK.ico
+FileCreateShortcut, %A_ScriptFullPath%, %shortcutLocation%\%snesgamenoext%.lnk,  "%A_Scriptdir%", snes "%snesgameslocation%\%snesgamelist%", Run %snesgamenoext% with Sinden Bezels, %A_ScriptDir%\lib\Lightgun_BLACK.ico
 run, explorer.exe %shortcutLocation%
 return
 
@@ -908,6 +1041,241 @@ return
 }
 return
 
+
+; mame Buttons   ---------    mame Buttons   ---------    mame Buttons   ---------    mame Buttons   ---------    mame Buttons   ---------   
+
+Wizardmame: ;-------  mame wizard  -------  mame wizard  -------  mame wizard  -------  mame wizard  -------  mame wizard  -------  mame wizard  
+mameemulocation := emudownloader(mamename,latestmame,mamesize,mamedocs)"\mame.exe"
+GuiControl, main:, mameemulocation, %mameemulocation%
+sleep 200
+SplitPath, mameemulocation ,, mameemufolder
+FileCopyDir, %A_scriptdir%\other\mame, %mameemufolder% , 1
+sleep 50
+run, `"%mameemulocation%`" -cc , %mameemufolder%, hide
+Gui, main:Submit, NoHide
+;SendMessage, 0x1330, 2,, SysTabControl321, WinTitle ; 0x1330 is TCM_SETCURFOCUS.
+iniwrite, %mameemulocation%, sdlauncher.ini, mame, mameemulocation
+mamebezelslocation = %mameemufolder%\artwork
+GuiControl, main:, mamebezelslocation, %mamebezelslocation%
+iniwrite, %mamebezelslocation%, sdlauncher.ini, mame, mamebezelslocation
+
+return
+;-------  mame wizard END  -------  mame wizard END -------  mame wizard END -------  mame wizard END  -------  mame wizard END -------  mame wizard  END 
+
+Downmame: ;manual download
+Gui, Submit, NoHide
+MsgBox, 8257, Download from the official page, 1- On the browser window you will find the `"Official Windows Binary Packages`"`n`n2- Find where it says `" mame02xx_64bit.exe`" and click it to download the file.
+IfMsgBox, OK
+	run, %mamemanualdownload%
+return
+Wikimame:
+Gui, Submit, NoHide
+	run, %mamewiki%
+return
+
+Videomame:
+Gui, Submit, NoHide
+	run, %mamevideo%
+return
+
+
+
+mameemulocation:
+Gui, main:Submit, NoHide
+iniwrite, %mameemulocation%, sdlauncher.ini, mame, mameemulocation
+If FileExist(mameemulocation) &&	 Instr(mameemulocation, ".exe")
+{
+	GuiControl, main:Enable, Shortcutmame
+	GuiControl, main:Enable, Playmame
+	GuiControl, main:Enable, mameconfigure
+}
+else
+{
+	GuiControl, main:Disable, Shortcutmame
+	GuiControl, main:Disable, Playmame
+	GuiControl, main:Disable, mameconfigure
+}
+gosub Save
+return
+mameemulocationBrowse: ; Browse for duckstation exe
+FileSelectFile, mameemulocation, S3,mame.exe, Select the emulator executable, MAME (mame.exe)
+if (Errorlevel = 0)
+	GuiControl, main:, mameemulocation, %mameemulocation%
+If FileExist(mameemulocation) &&	 Instr(mameemulocation, ".exe")
+{
+	GuiControl, main:Enable, Shortcutmame
+	GuiControl, main:Enable, Playmame
+	GuiControl, main:Disable, mameconfigure
+}
+else
+{
+	GuiControl, main:Disable, Shortcutmame
+	GuiControl, main:Disable, Playmame
+	GuiControl, main:Disable, mameconfigure
+}
+Gui, main:Submit, NoHide
+iniwrite, %mameemulocation%, sdlauncher.ini, mame, mameemulocation
+gosub Save
+return
+
+
+mameparameters:
+Gui, main:Submit, NoHide
+iniwrite, %mameparameters%, sdlauncher.ini, mame, mameparameters
+gosub Save
+return
+mameparametersDefault: ; Default parameters for Duckstation
+GuiControl, main:, mameparameters, -keyboardprovider dinput
+Gui, main:Submit, NoHide
+iniwrite, %mameparameters%, sdlauncher.ini, mame, mameparameters
+gosub Save
+return
+
+
+mamebezelslocation:
+Gui, main:Submit, NoHide
+iniwrite, %mamebezelslocation%, sdlauncher.ini, mame, mamebezelslocation
+Loop, read, %mameemufolder%\mame.ini  , %mameemufolder%\temp.ini
+{
+ If InStr(A_LoopReadLine, "artpath")
+	Fileappend, artpath       %mamebezelslocation%`n
+else
+	FileAppend, %A_LoopReadLine%`n
+}
+filecopy,  %mameemufolder%\temp.ini, %mameemufolder%\mame.ini ,1 
+sleep 100
+FileDelete, %mameemufolder%\temp.ini
+gosub Save
+return
+mamebezelslocationBrowse: ; Browse for mame bezel folder
+FileSelectFolder, mamebezelslocation, *%mameemufolder%\artwork, 3, Select your %mamesystemname% artwork folder
+if (Errorlevel = 0)
+	GuiControl, main:, mamebezelslocation, %mamebezelslocation%
+Gui, main:Submit, NoHide
+iniwrite, %mamebezelslocation%, sdlauncher.ini, mame, mamebezelslocation
+Loop, read, %mameemufolder%\mame.ini  , %mameemufolder%\temp.ini
+{
+ If InStr(A_LoopReadLine, "artpath")
+	Fileappend, artpath       %mamebezelslocation%`n
+else
+	FileAppend, %A_LoopReadLine%`n
+}
+filecopy,  %mameemufolder%\temp.ini, %mameemufolder%\mame.ini ,1 
+sleep 100
+FileDelete, %mameemufolder%\temp.ini
+gosub Save
+return
+
+mamehidemouse: 
+Gui, main:Submit, NoHide
+iniwrite, %mamehidemouse%, sdlauncher.ini, mame, mamehidemouse
+gosub Save
+return
+
+mameconfigure:
+run, `"%mameemulocation%`",  %mameemufolder%
+return
+ 
+ 
+mamegameslocation:
+Gui, main:Submit, NoHide
+getFolderFilelistmame(mamegameslocation,"mamegamelist")
+Gui, main:Submit, NoHide
+Loop, read, %mameemufolder%\mame.ini  , %mameemufolder%\temp.ini
+{
+ If InStr(A_LoopReadLine, "rompath")
+	Fileappend, rompath       %mamegameslocation%`n
+else
+	FileAppend, %A_LoopReadLine%`n
+}
+filecopy,  %mameemufolder%\temp.ini, %mameemufolder%\mame.ini ,1 
+sleep 100
+FileDelete, %mameemufolder%\temp.ini
+gosub Save
+return
+mamegameslocationBrowser:
+FileSelectFolder, mamegameslocation, *%A_ScriptDir%\emulators\mame\roms, 3, Select your %mamesystemname% games folder
+if (Errorlevel = 0)
+{
+	GuiControl, main:, mamegameslocation, %mamegameslocation%
+	getFolderFilelistmame(mamegameslocation,"mamegamelist")
+}
+Gui, main:Submit, NoHide
+iniwrite, %mamegameslocation%, sdlauncher.ini, mame, mamegameslocation
+Loop, read, %mameemufolder%\mame.ini  , %mameemufolder%\temp.ini
+{
+ If InStr(A_LoopReadLine, "rompath")
+	Fileappend, rompath       %mamegameslocation%`n
+else
+	FileAppend, %A_LoopReadLine%`n
+}
+filecopy,  %mameemufolder%\temp.ini, %mameemufolder%\mame.ini , 1
+sleep 100
+FileDelete, %mameemufolder%\temp.ini
+gosub Save
+return
+
+
+Playmame:
+Gui, main:submit, hide
+playingmame = 1
+SysGet, m1, Monitor, 1
+LeftPixel := Floor((m1right - ((m1bottom/7)*8))/2)
+RightPixel := Floor(m1right - LeftPixel)
+SplitPath, mamegamelist,,,,mamegamenoext
+run, `"%mameemulocation%`"  %mameparameters% `"%mamegameslocation%\%mamegamelist%`" , %mameemufolder%
+return
+
+mamegamelist:
+gui, main:submit, nohide
+SplitPath, mamegamelist,,,,mamegamenoext
+if !FileExist(mamebezelslocation "\" mamegamenoext "\BezelStandard.png")
+{
+	currentBezel = default
+	GuiControl, main:show, mamebezelMessage
+}
+else
+{
+	currentBezel = %mamegamenoext%
+	GuiControl, main:hide, mamebezelMessage
+}
+GuiControl, main:, bezelPreviewmame, %mamebezelslocation%\%currentbezel%\BezelStandard.png
+gosub Save
+return
+
+Shortcutmame:
+FileSelectFolder, shortcutLocation, *%A_Desktop%, 3, Select a folder to save the game shortcut
+SplitPath, mamegamelist,,,,mamegamenoext
+FileCreateShortcut, %A_ScriptFullPath%, %shortcutLocation%\%mamegamenoext%.lnk,  "%A_Scriptdir%", mame "%mamegamenoext%", Run %mamegamenoext% with Sinden Bezels, %A_ScriptDir%\lib\Lightgun_BLACK.ico
+run, explorer.exe %shortcutLocation%
+return
+
+ChangeBezelmame:
+SplitPath, mamegamelist,,,,mamegamenoext
+FileSelectFolder, newBezel, *%A_Scriptdir%\emulators\mame\artwork\%mamegamenoext% , 3, Select new artwork folder for %mamegamenoext%
+if (Errorlevel = 0)
+{
+	if fileexist(mamebezelslocation "\" mamegamenoext "\" ) ; make a backup of the existing bezel, if any
+	{
+		FormatTime, timestamp,, yyMMddHHmmss
+		if !fileexist(mamebezelslocation "\backup")
+			filecreatedir, %mamebezelslocation%\backup
+		FileCreateDir, %mamebezelslocation%\backup\backup_%timestamp%_%mamegamenoext%\ 
+		FileCopy, %mamebezelslocation%\%mamegamenoext%\*.* , %mamebezelslocation%\backup\backup_%timestamp%_%mamegamenoext%\ 
+		;FileCopyDir, %mamebezelslocation%\%mamegamenoext%\, %mamebezelslocation%\backup\backup_%timestamp%_%mamegamenoext%\
+		
+	}
+	FileCopyDir, %newBezel%,  %mamebezelslocation%\%mamegamenoext%, 1
+	currentBezel = %mamegamenoext%
+	GuiControl, main:, bezelPreviewmame, %mamebezelslocation%\%currentbezel%\BezelStandard.png
+	GuiControl, main:hide, bezelMessage
+
+}
+else
+{ 
+return
+}
+return
 
 
 
@@ -1348,6 +1716,28 @@ getFolderFilelistsnes(FolderPath,guiVariable)
 
 }
 
+getFolderFilelistmame(FolderPath,guiVariable)
+{
+
+	List = 
+	loop, Files, % FolderPath "\*.*"
+		{
+			SplitPath, A_LoopFileName, Filename,,FileExtension
+			if(system=ps1)
+			{
+				if(FileExtension="ZIP")
+					List .= FileName "|"
+			}
+
+		}
+	List := RTrim(List, "|")
+	List := StrReplace(List, "|", "||",, 1) ; make first item default
+	GuiControl,main:, %guiVariable%, |
+	GuiControl,main:, %guiVariable%, %List%
+	SplitPath, mamegamelist,,,,mamegamenoext
+
+}
+
 
 mainGuiClose:
 FileRemoveDir, %A_ScriptDir%\temp, 1
@@ -1372,6 +1762,12 @@ IniWrite, %snesbezelslocation%, sdlauncher.ini, snes, snesbezelsLocation
 IniWrite, %snesgameslocation%, sdlauncher.ini, snes, snesgameslocation
 IniWrite, %sneshidemouse%, sdlauncher.ini, snes, sneshidemouse
 
+;[mame]
+IniWrite, %mameemulocation%, sdlauncher.ini, mame, mameemulocation
+IniWrite, %mameparameters%, sdlauncher.ini, mame, mameparameters
+IniWrite, %mamebezelslocation%, sdlauncher.ini, mame, mamebezelsLocation
+IniWrite, %mamegameslocation%, sdlauncher.ini, mame, mamegameslocation
+IniWrite, %mamehidemouse%, sdlauncher.ini, mame, mamehidemouse
 
 if FileExist(ps1emufolder "\settings.ini")
 {
@@ -1397,7 +1793,7 @@ Filedelete, %A_ScriptDir%\sdlauncher.ini
 Reload
 return
 
-
+;-------------------------ESCAPE SEQUENCE FOR EACH EMU
 #If (playingps1)
 $Esc::
 showcursor()
@@ -1423,6 +1819,17 @@ WinShow, ahk_class Shell_SecondaryTrayWnd
 gui, 88:destroy
 playingsnes = 0
 Run,taskkill /im "snes9x.exe" /F
+if (numParams = 0)
+	gui, main: show
+else
+	ExitApp
+#If
+
+#If (playingmame)
+$Esc::
+Process,Close,mame
+Run,taskkill /im "mame.exe" /F
+playingmame = 0
 if (numParams = 0)
 	gui, main: show
 else

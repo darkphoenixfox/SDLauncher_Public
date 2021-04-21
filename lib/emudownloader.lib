@@ -55,7 +55,7 @@ if !(FileExist(filenamepath)) {
 	; Now set the splash bar updating
 		SetTimer, uProgressX, 250
 	; extract the software folder
-	run, `"%a_scriptdir%\lib\7z.exe`" x -y `"%filenamepath%`" -o`"%emulocation%`", %A_ScriptDir% , Hide
+	runwait, `"%a_scriptdir%\lib\7z.exe`" x -y `"%filenamepath%`" -o`"%emulocation%`", %A_ScriptDir% , Hide
 	; download Finished turn off splashbar
 	SetTimer, uProgressX, off
 	Progress, Off
