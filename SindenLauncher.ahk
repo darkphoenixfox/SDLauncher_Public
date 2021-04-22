@@ -552,7 +552,7 @@ else
 	GuiControl, main:Disable, Playdc
 }
 
-Gui, main:add, text, x217 y570 w377 h20 center vdcbezelMessage, redream uses the generic Sinden software bezels (Alt+B)
+Gui, main:add, text, x217 y570 w377 h20 center vdcbezelMessage, Redream uses the generic Sinden software bezels (Alt+B)
 
 ;~ ;bezel preview
 ;~ Gui, main:Add, Text, x70 y302 w150 h20 , Bezels Location
