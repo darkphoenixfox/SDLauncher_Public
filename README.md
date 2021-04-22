@@ -23,6 +23,7 @@ SDLauncher accepts 2 parameters from commandline:
 - 2nd parameter for the game: full path to your iso or rom file or MAME rom name. Quotes are required if the path has any spaces:
 
 Examples: 
+
 *SDlauncher.exe ps1 "C:\games\Playstation 1\Time Crisis (U).iso"*
 
 *SDlauncher.exe mame area51*
