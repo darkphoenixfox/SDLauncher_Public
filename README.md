@@ -24,7 +24,8 @@ SDLauncher accepts 2 parameters from commandline:
 
 Examples: 
 *SDlauncher.exe ps1 "C:\games\Playstation 1\Time Crisis (U).iso"*
-*SDlauncher.exe mame area51
+
+*SDlauncher.exe mame area51*
 
 
 
