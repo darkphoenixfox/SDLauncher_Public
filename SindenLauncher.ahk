@@ -11,35 +11,39 @@ SetWinDelay, -1
 ;------------------- Preparations --------------------------
 ;Import external libraries
 #Include, %A_ScriptDir%\lib\nonomousy.lib ; hidecursor() / showcursor()
-#Include, %A_ScriptDir%\lib\emudownloader.lib ; HashFile(filepath, "MD5") || emudownloader(DMemuname,DMfullfilename,DMtotalFilesize,DMdocumentation)
+#Include, %A_ScriptDir%\lib\emudownloader.lib ; emudownloader(DMemuname,DMfullfilename,DMtotalFilesize,DMdocumentation)
 
-showcursor()
+showcursor() ;this is a failsafe. If you get stuck with no mouse cursor, just reload the program
+
 ; capture the parameters given to the program
 numParams = %0% ;0 1 or 2
 systemParam = %1% ;system
-gameParam = %2% ; iso name with full path
+gameParam = %2% ; iso name with full path or rom name for mame
 systems := [] ; Init array
 ;.systems := [ps1,ps2,snes,demul,mame]
-systems := {"ps1":0,"snes":0,"mame":0}
-
+systems := {"ps1":0,"snes":0,"mame":0,"dc":0} ; needs to be changed to add more systems
 FileCreateDir, %a_scriptdir%\temp
 
+I_Icon = %A_ScriptDir%\lib\Lightgun_RED.ico ; give the app a nice icon for the tray and the Windows
+IfExist, %I_Icon%
+Menu, Tray, Icon, %I_Icon%
 
-; -------------------------------------------------read the ini file sdlauncher.ini
+
+; INI FILE  -----   INI FILE  -----   INI FILE  -----   INI FILE  -----   INI FILE  -----   INI FILE  -----   INI FILE  -----   INI FILE  -----   INI FILE  -----   INI FILE  -----
 
 ;[general]
 iniread, numberofguns, sdlauncher.ini, general, numberofguns, 1
-iniread, p1sindenlocation, sdlauncher.ini, general, p1sindenlocation, %A_ScriptDir%
-iniread, p2sindenlocation, sdlauncher.ini, general, p2sindenlocation, %A_ScriptDir%
+iniread, p1sindenlocation, sdlauncher.ini, general, p1sindenlocation, %A_ScriptDir%\tools\SindenLightgun1
+iniread, p2sindenlocation, sdlauncher.ini, general, p2sindenlocation, %A_ScriptDir%\tools\SindenLightgun2
 iniread, latestsoftware, sdlauncher.ini, general, latestsoftware, https://www.sindenlightgun.com/software/SindenLightgunSoftwareReleaseV1.05b.zip
 iniread, softwaresize, sdlauncher.ini, general, softwaresize, 23855276
 iniread, softwarehash, sdlauncher.ini, general, softwarehash, 1672dc77d6cc505bd47cb85ffbf9b393
 
 ;[ps1]
-IniRead, ps1emulocation, sdlauncher.ini, ps1, ps1emulocation, %A_ScriptDir% 
-IniRead, ps1parameters, sdlauncher.ini, ps1, ps1parameters, 0
+IniRead, ps1emulocation, sdlauncher.ini, ps1, ps1emulocation, Path to emulator executable
+IniRead, ps1parameters, sdlauncher.ini, ps1, ps1parameters, -fullscreen
+IniRead, ps1gameslocation, sdlauncher.ini, ps1, ps1gameslocation, Select your games folder
 IniRead, ps1bezelslocation, sdlauncher.ini, ps1, ps1bezelsLocation, %A_ScriptDir%\SindenBezels\ps1
-IniRead, ps1gameslocation, sdlauncher.ini, ps1, ps1gameslocation, 0 %A_ScriptDir%
 IniRead, ps1hidemouse, sdlauncher.ini, ps1, ps1hidemouse, 0
 
 ;static
@@ -57,10 +61,10 @@ SplitPath, ps1emulocation ,, ps1emufolder
 
 
 ;[snes]
-IniRead, snesemulocation, sdlauncher.ini, snes, snesemulocation, %A_ScriptDir%
-IniRead, snesparameters, sdlauncher.ini, snes, snesparameters, 0
+IniRead, snesemulocation, sdlauncher.ini, snes, snesemulocation, Path to emulator executable
+IniRead, snesparameters, sdlauncher.ini, snes, snesparameters, -fullscreen -port2 superscope
+IniRead, snesgameslocation, sdlauncher.ini, snes, snesgameslocation, Select your games folder
 IniRead, snesbezelslocation, sdlauncher.ini, snes, snesbezelsLocation, %A_ScriptDir%\SindenBezels\snes
-IniRead, snesgameslocation, sdlauncher.ini, snes, snesgameslocation, %A_ScriptDir%
 IniRead, sneshidemouse, sdlauncher.ini, snes, sneshidemouse, 0
 
 ;static
@@ -76,10 +80,10 @@ IniRead, snesvideo, sdlauncher.ini, snes, snesvideo, https://www.youtube.com/wat
 SplitPath, snesemulocation ,, snesemufolder
 
 ;[mame]
-IniRead, mameemulocation, sdlauncher.ini, mame, mameemulocation, %A_ScriptDir% 
-IniRead, mameparameters, sdlauncher.ini, mame, mameparameters, 0
-IniRead, mamebezelslocation, sdlauncher.ini, mame, mamebezelsLocation, %A_ScriptDir%\other\Mame\Artwork
-IniRead, mamegameslocation, sdlauncher.ini, mame, mamegameslocation, %A_ScriptDir%
+IniRead, mameemulocation, sdlauncher.ini, mame, mameemulocation, Path to emulator executable
+IniRead, mameparameters, sdlauncher.ini, mame, mameparameters, -keyboardprovider dinput
+IniRead, mamegameslocation, sdlauncher.ini, mame, mamegameslocation, Select your games folder
+IniRead, mamebezelslocation, sdlauncher.ini, mame, mamebezelsLocation, %A_ScriptDir%\other\mame\artwork
 IniRead, mamehidemouse, sdlauncher.ini, mame, mamehidemouse, 0
 
 ;static
@@ -94,18 +98,32 @@ IniRead, mamevideo, sdlauncher.ini, mame, mamevideo, https://www.youtube.com/wat
 
 SplitPath, mameemulocation ,, mameemufolder
 
-;---------------------------------------------------------INI END -----------------------------------------
+;[dc]
+IniRead, dcemulocation, sdlauncher.ini, dc, dcemulocation, Path to emulator executable
+IniRead, dcparameters, sdlauncher.ini, dc, dcparameters, %a_space%
+IniRead, dcgameslocation, sdlauncher.ini, dc, dcgameslocation, Select your games folder
+IniRead, dcbezelslocation, sdlauncher.ini, dc, dcbezelsLocation, %A_ScriptDir%\other\dc\artwork
+IniRead, dchidemouse, sdlauncher.ini, dc, dchidemouse, 0
+
+;static
+IniRead, dcsystemname, sdlauncher.ini, dc, dcsystemname, Dreamcast
+IniRead, dcname, sdlauncher.ini, dc, dcname, Redream
+iniread, latestdc, sdlauncher.ini, dc, latestdc, https://redream.io/download/redream.x86_64-windows-v1.5.0-868-g05b9cbe.zip
+iniread, dcmanualdownload, launcher.ini, dc, dcmanualdownload, https://redream.io/download
+iniread, dcsize, sdlauncher.ini, dc, dcsize,  2530123
+iniread, dcdocs, sdlauncher.ini, dc, dcdocs, https://redream.io/help
+IniRead, dcwiki, sdlauncher.ini, dc, dcwiki, https://sindenlightgun.miraheze.org/wiki/Redream
+IniRead, dcvideo, sdlauncher.ini, dc, dcvideo, https://www.youtube.com/channel/UChXWTBXCEU8kn5haxczwiyQ
+
+SplitPath, dcemulocation ,, dcemufolder
+
+;   END INI FILE  -----   END INI FILE  -----   END INI FILE  -----   END INI FILE  -----   END INI FILE  -----   END INI FILE  -----   END INI FILE  -----   END INI FILE  -----   END INI FILE  -----   END INI FILE  -----
 
 
-if (p1sindenlocation=0) ; set the default
-	p1sindenlocation=%A_ScriptDir%\tools\SindenLightgun1
-if (p2sindenlocation=0) ; set the default
-		p2sindenlocation=%A_ScriptDir%\tools\SindenLightgun2
 
-
-if (numParams > 0) 
+if (numParams > 0) ; Find out if the user is trying to open the UI or run a game from commandline/shortcut
 {
-	if !FileExist(a_scriptdir "\sdlauncher.ini")
+	if !FileExist(a_scriptdir "\sdlauncher.ini") ;can't run games without configuration
 		{
 		gosub showUI
 		return
@@ -143,30 +161,25 @@ if (numParams > 0)
 			SplitPath, gameParam,mamegamelist,mamegameslocation
 			Gosub Playmame
 		}
+		if (systemParam="dc")
+		{
+			SplitPath, gameParam,dcgamelist,dcgameslocation
+			Gosub Playdc
+		}
 		return
 	}
 }
 
-
-; give the app a nice icon for the tray and the Windows
-I_Icon = %A_ScriptDir%\lib\Lightgun_RED.ico
-IfExist, %I_Icon%
-Menu, Tray, Icon, %I_Icon%
-
-
-;-----------------------------------------------------------
 
 
 if (numParams=0) ;if the program is run without parameters load the UI
 	gosub showUI
 return
 
-
-;============================================================MAIN UI============================================================
+;   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----
 showUI:
-;Gui, main:Add, Tab3, W800 H600 Center, General||PS1|PS2|SNES|Demul|Tools|Run Game ; full version
 
-Gui, main:Add, Tab3, w800 h600 Center, Sinden||Playstation | SNES | MAME | Credits ;lite version
+Gui, main:Add, Tab3, w800 h600 Center, Sinden||Playstation | SNES | MAME | Dreamcast | Credits ;lite version
 
 
 
@@ -177,7 +190,6 @@ Gui, main:Tab, 1,
 Gui, main:Add, Picture, x735 y545 vDiskIcon, %A_ScriptDir%\lib\disk.png
 GuiControl, main:hide, DiskIcon
 Gui, main:Add, Text, x30 y72 w150 h20 , Sinden Software
-
 Gui, main:Add, Button, x150 y70 w100 h20, Installation Wizard
 Gui, main:Add, Text, x260 y72 w150 h20 , - or - 
 Gui, main:Add, Button, x290 y70 w100 h20 gDown1 , Manual Download
@@ -190,9 +202,7 @@ if (numberofguns=2)
 	guicontrol, main:choose , numberofguns, 2
 }
 
-
 ;gun 1 section
-
 Gui, main:Add, Picture, x30 y125 w32 h32, %A_ScriptDir%\lib\Lightgun_RED.ico
 gui, main:font, bold
 Gui, main:Add, Button, x100 y130 w100 h20 gRUN1 vRUN1 Default, RUN 
@@ -213,10 +223,7 @@ Gui, main:Add, Text, x370 y132 w150 h20 , Path:
 Gui, main:Add, Edit, x400 y130 w290 h20 vp1sindenlocation gp1sindenlocation, %p1sindenlocation%
 Gui, main:Add, Button, x700 y130 w100 h20 gp1sindenlocationBrowse vp1sindenlocationBrowse , Browse
 
-
-
 ;gun 2 section
-
 	Gui, main:Add, Picture, x30 y200 w32 h32 vSindenIcon2, %A_ScriptDir%\lib\Lightgun_BLUE.ico
 	gui, main:font, bold
 	Gui, main:Add, Button, x100 y205 w100 h20 gRUN2 Default vRUN2, RUN 
@@ -249,7 +256,6 @@ if (numberofguns=1)
 }
 
 
-
 ;Playstation 1 TAB -----------   Playstation 1 TAB -----------   Playstation 1 TAB -----------   Playstation 1 TAB -----------   Playstation 1 TAB -----------   
 Gui, main:Tab, 2 
 Gui, main:Add, Picture, x735 y545 vDiskIconps1, %A_ScriptDir%\lib\disk.png
@@ -258,9 +264,7 @@ Gui, main: font, bold
 if FileExist(a_scriptdir "\lib\" ps1name ".ico")
 {
 	Gui, main:Add, picture, x40 y40 w64 h64 vps1ico, %a_Scriptdir%\lib\%ps1name%.ico
-	
 	Gui, main:Add, Text, x22 y110 w100 h20 center, %ps1name%
-	
 }
 else
 	Gui, main:Add, Text, x30 y72 w150 h20 , %ps1name%
@@ -270,46 +274,30 @@ Gui, main:Add, Text, x260 y72 w150 h20 , - or -
 Gui, main:Add, Button, x290 y70 w100 h20 gDownps1 , Manual Download
 Gui, main:Add, Button, x430 y70 w140 h20 gWikips1, %ps1name% Sinden Wiki
 Gui, main:Add, Button, x610 y70 w140 h20 gVideops1, Video guide
-
 Gui, main:Add, Text, x70 y132 w150 h20 , Emulator Location
-if (ps1emulocation=0) ;set the default
-	ps1emulocation=Path to emulator executable
 Gui, main:Add, Edit, x180 y130 w490 h20 vps1emulocation gps1emulocation, %ps1emulocation%
 Gui, main:Add, Button, x680 y130 w100 h20 gps1emulocationBrowse vps1emulocationBrowse , Browse
-
 Gui, main:Add, Text, x70 y162 w150 h20 , Emulator parameters
-if (ps1parameters=0) ;set the default
-	ps1parameters:="-fullscreen"
 Gui, main:Add, Edit, x180 y160 w490 h20 vps1parameters gps1parameters, %ps1parameters%
 Gui, main:Add, Button, x680 y160 w100 h20 gps1parametersDefault , Default
-
 Gui, main:Add, Text, x70 y192 w150 h20 , Games Location
-if (ps1gameslocation=0) ; set the default
-	ps1gameslocation=Select your games folder
 Gui, main:Add, Edit, x180 y190 w490 h20 vps1gameslocation gps1gameslocation, %ps1gameslocation%
 Gui, main:Add, Button, x680 y190 w100 h20 gps1gameslocationBrowser vps1gameslocationBrowser , Browse
-
-;game browser
 Gui, main:Add, Text, x70 y222 w150 h20 , Game Launcher
 Gui, main:Add, DropDownList, x180 y220 w490 r6 gps1gamelist vps1gamelist,
 getFolderFilelistps1(ps1gameslocation,"ps1gamelist")
-;selected game options
-
-
 Gui, main:add, text, x115 y254 w150 h20, Hide Mouse
 GuiControl, main:, ps1hidemouse, %ps1hidemouse% ; set the default/ ini value
 Gui, main:add, CheckBox, x180 y255 vps1hidemouse gps1hidemouse,
 Gui, main:add, Button, x220 y250 w100 h20 vps1configure gps1configure, Configure Emulator
 If FileExist(ps1emulocation) &&	 Instr(ps1emulocation, ".exe")
-{
 	GuiControl, main:Enable, ps1configure
-}
 else
-{
 	GuiControl, main:Disable, ps1configure
-}
 
 Gui, main:Add, Button, x370 y250 w100 h20 gShortcutps1 vShortcutps1, Create Shortcut
+
+Gui, main:Add, Button, x520 y250 w100 h20 gPlayps1 vPlayps1 , Play
 If FileExist(ps1emulocation) &&	 Instr(ps1emulocation, ".exe")
 {
 	GuiControl, main:Enable, Shortcutps1
@@ -320,19 +308,9 @@ else
 	GuiControl, main:Disable, Shortcutps1
 	GuiControl, main:Disable, Playps1
 }
-
-Gui, main:Add, Button, x520 y250 w100 h20 gPlayps1 vPlayps1 , Play
-
-
-
-
-;bezel preview
-Gui, main:Add, Text, x70 y302 w150 h20 , Bezels Location
-if (ps1bezelslocation=0) ; set the default
-	ps1bezelslocation=%A_ScriptDir%\SindenBezels\ps1
+Gui, main:Add, Text, x70 y302 w150 h20 , Bezels Location ;bezel preview
 Gui, main:Add, Edit, x180 y300 w490 h20 vps1bezelslocation gps1bezelslocation, %ps1bezelslocation%
 Gui, main:Add, Button, x680 y300 w100 h20 gps1bezelslocationBrowse vps1bezelslocationBrowse, Browse
-
 gui, main:submit, nohide
 Gui, main:Add, Text, x70 y442 w150 h20 , Bezel Preview
 Gui, main:add, text, x217 y570 w377 h20 center vps1bezelMessage, Game bezel not found - Using generic
@@ -352,11 +330,6 @@ Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewps1, %A_ScriptDir%\Sind
 Gui, main:Add, Button, x680 y440 w100 h20 gChangeBezelps1 vChangeBezelps1, Change Bezel
 
 
-
-
-
-
-
 ;SNES TAB -----------   SNES TAB -----------   SNES TAB -----------   SNES TAB -----------   SNES TAB -----------   
 Gui, main:Tab, 3
 Gui, main:Add, Picture, x735 y545 vDiskIconsnes, %A_ScriptDir%\lib\disk.png
@@ -365,9 +338,7 @@ Gui, main: font, bold
 if FileExist(a_scriptdir "\lib\" snesname ".ico")
 {
 	Gui, main:Add, picture, x40 y40 w64 h64 vsnesico, %a_Scriptdir%\lib\%snesname%.ico
-	
 	Gui, main:Add, Text, x22 y110 w100 h20 center, %snesname%
-	
 }
 else
 	Gui, main:Add, Text, x30 y72 w150 h20 , %snesname%
@@ -379,20 +350,13 @@ Gui, main:Add, Button, x430 y70 w140 h20 gWikisnes, %snesname% Sinden Wiki
 Gui, main:Add, Button, x610 y70 w140 h20 gVideosnes, Video guide
 
 Gui, main:Add, Text, x70 y132 w150 h20 , Emulator Location
-if (snesemulocation=0) ;set the default
-	snesemulocation=Path to emulator executable
 Gui, main:Add, Edit, x180 y130 w490 h20 vsnesemulocation gsnesemulocation, %snesemulocation%
 Gui, main:Add, Button, x680 y130 w100 h20 gsnesemulocationBrowse vsnesemulocationBrowse, Browse
 
 Gui, main:Add, Text, x70 y162 w150 h20 , Emulator parameters
-if (snesparameters=0) ;set the default
-	snesparameters:="-fullscreen -port2 superscope"
 Gui, main:Add, Edit, x180 y160 w490 h20 vsnesparameters gsnesparameters, %snesparameters%
 Gui, main:Add, Button, x680 y160 w100 h20 gsnesparametersDefault , Default
-
 Gui, main:Add, Text, x70 y192 w150 h20 , Games Location
-if (snesgameslocation=0) ; set the default
-	snesgameslocation=Select your games folder
 Gui, main:Add, Edit, x180 y190 w490 h20 vsnesgameslocation gsnesgameslocation, %snesgameslocation%
 Gui, main:Add, Button, x680 y190 w100 h20 gsnesgameslocationBrowser vsnesgameslocationBrowser , Browse
 
@@ -408,15 +372,11 @@ GuiControl, main:, sneshidemouse, %sneshidemouse% ; set the default/ ini value
 Gui, main:add, CheckBox, x180 y255 vsneshidemouse gsneshidemouse,
 Gui, main:add, Button, x220 y250 w100 h20 vsnesconfigure gsnesconfigure, Configure Emulator
 If FileExist(snesemulocation) &&	 Instr(snesemulocation, ".exe")
-{
 	GuiControl, main:Enable, snesconfigure
-}
 else
-{
 	GuiControl, main:Disable, snesconfigure
-}
-
 Gui, main:Add, Button, x370 y250 w100 h20 gShortcutsnes vShortcutsnes, Create Shortcut
+Gui, main:Add, Button, x520 y250 w100 h20 gPlaysnes vPlaysnes, Play
 If FileExist(snesemulocation) &&	 Instr(snesemulocation, ".exe")
 {
 	GuiControl, main:Enable, Shortcutsnes
@@ -428,18 +388,10 @@ else
 	GuiControl, main:Disable, Playsnes
 }
 
-Gui, main:Add, Button, x520 y250 w100 h20 gPlaysnes vPlaysnes, Play
-
-
-
-
 ;bezel preview
 Gui, main:Add, Text, x70 y302 w150 h20 , Bezels Location
-if (snesbezelslocation=0) ; set the default
-	snesbezelslocation=%A_ScriptDir%\SindenBezels\snes
 Gui, main:Add, Edit, x180 y300 w490 h20 vsnesbezelslocation gsnesbezelslocation, %snesbezelslocation%
 Gui, main:Add, Button, x680 y300 w100 h20 gsnesbezelslocationBrowse vsnesbezelslocationBrowse, Browse
-
 gui, main:submit, nohide
 Gui, main:Add, Text, x70 y442 w150 h20 , Bezel Preview
 Gui, main:add, text, x217 y570 w377 h20 center vsnesbezelMessage, Game bezel not found - Using generic
@@ -467,9 +419,8 @@ Gui, main: font, bold
 if FileExist(a_scriptdir "\lib\" mamename ".ico")
 {
 	Gui, main:Add, picture, x40 y40 w64 h64 vmameico, %a_Scriptdir%\lib\%mamename%.ico
-	
 	Gui, main:Add, Text, x22 y110 w100 h20 center, %mamename%
-	
+
 }
 else
 	Gui, main:Add, Text, x30 y72 w150 h20 , %mamename%
@@ -481,20 +432,14 @@ Gui, main:Add, Button, x430 y70 w140 h20 gWikimame, %mamename% Sinden Wiki
 Gui, main:Add, Button, x610 y70 w140 h20 gVideomame, Video guide
 
 Gui, main:Add, Text, x70 y132 w150 h20 , Emulator Location
-if (mameemulocation=0) ;set the default
-	mameemulocation=Path to emulator executable
 Gui, main:Add, Edit, x180 y130 w490 h20 vmameemulocation gmameemulocation, %mameemulocation%
 Gui, main:Add, Button, x680 y130 w100 h20 gmameemulocationBrowse vgmameemulocationBrowse, Browse
 
 Gui, main:Add, Text, x70 y162 w150 h20 , Emulator parameters
-if (mameparameters=0) ;set the default
-	mameparameters:="-keyboardprovider dinput"
 Gui, main:Add, Edit, x180 y160 w490 h20 vmameparameters gmameparameters, %mameparameters%
 Gui, main:Add, Button, x680 y160 w100 h20 gmameparametersDefault , Default
 
 Gui, main:Add, Text, x70 y192 w150 h20 , Games Location
-if (mamegameslocation=0) ; set the default
-	mamegameslocation=Select your games folder
 Gui, main:Add, Edit, x180 y190 w490 h20 vmamegameslocation gmamegameslocation, %mamegameslocation%
 Gui, main:Add, Button, x680 y190 w100 h20 gmamegameslocationBrowser vmamegameslocationBrowser , Browse
 
@@ -511,15 +456,11 @@ getFolderFilelistmame(mamegameslocation,"mamegamelist")
 
 Gui, main:add, Button, x220 y250 w100 h20 vmameconfigure gmameconfigure, Configure Emulator
 If FileExist(mameemulocation) &&	 Instr(mameemulocation, ".exe")
-{
 	GuiControl, main:Enable, mameconfigure
-}
 else
-{
 	GuiControl, main:Disable, mameconfigure
-}
-
 Gui, main:Add, Button, x370 y250 w100 h20 gShortcutmame vShortcutmame, Create Shortcut
+Gui, main:Add, Button, x520 y250 w100 h20 gPlaymame vPlaymame , Play
 If FileExist(mameemulocation) &&	 Instr(mameemulocation, ".exe")
 {
 	GuiControl, main:Enable, Shortcutmame
@@ -530,12 +471,6 @@ else
 	GuiControl, main:Disable, Shortcutmame
 	GuiControl, main:Disable, Playmame
 }
-
-Gui, main:Add, Button, x520 y250 w100 h20 gPlaymame vPlaymame , Play
-
-
-
-
 ;bezel preview
 Gui, main:Add, Text, x70 y302 w150 h20 , Bezels Location
 Gui, main:Add, Edit, x180 y300 w490 h20 vmamebezelslocation gmamebezelslocation, %mamebezelslocation%
@@ -559,9 +494,91 @@ Gui, main:add, picture, x215 y343 w381 h216 vbackgroundmame, %A_ScriptDir%\lib\1
 Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewmame, %mamebezelslocation%\%currentbezel%\BezelStandard.png
 Gui, main:Add, Button, x680 y440 w100 h20 gChangeBezelmame vChangeBezelmame, Change Bezel
 
+;DC TAB -----------   DC TAB -----------   DC TAB -----------   DC TAB -----------   DC TAB -----------   
+Gui, main:Tab, 5
+Gui, main:Add, Picture, x735 y545 vDiskIcondc, %A_ScriptDir%\lib\disk.png
+GuiControl, main:hide, DiskIcondc
+Gui, main: font, bold
+if FileExist(a_scriptdir "\lib\" dcname ".ico")
+{
+	Gui, main:Add, picture, x40 y40 w64 h64 vdcico, %a_Scriptdir%\lib\%dcname%.ico
+	Gui, main:Add, Text, x22 y110 w100 h20 center, %dcname%
+}
+else
+	Gui, main:Add, Text, x30 y72 w150 h20 , %dcname%
+Gui, main: font
+Gui, main:Add, Button, x150 y70 w100 h20 gWizarddc, Installation Wizard
+Gui, main:Add, Text, x260 y72 w150 h20 , - or - 
+Gui, main:Add, Button, x290 y70 w100 h20 gDowndc , Manual Download
+Gui, main:Add, Button, x430 y70 w140 h20 gWikidc, %dcname% Sinden Wiki
+;Gui, main:Add, Button, x610 y70 w140 h20 gVideodc, Video guide
+
+Gui, main:Add, Text, x70 y132 w150 h20 , Emulator Location
+Gui, main:Add, Edit, x180 y130 w490 h20 vdcemulocation gdcemulocation, %dcemulocation%
+Gui, main:Add, Button, x680 y130 w100 h20 gdcemulocationBrowse vdcemulocationBrowse, Browse
+
+Gui, main:Add, Text, x70 y162 w150 h20 , Emulator parameters
+Gui, main:Add, Edit, x180 y160 w490 h20 vdcparameters gdcparameters, %dcparameters%
+Gui, main:Add, Button, x680 y160 w100 h20 gdcparametersDefault , Default
+Gui, main:Add, Text, x70 y192 w150 h20 , Games Location
+Gui, main:Add, Edit, x180 y190 w490 h20 vdcgameslocation gdcgameslocation, %dcgameslocation%
+Gui, main:Add, Button, x680 y190 w100 h20 gdcgameslocationBrowser vdcgameslocationBrowser , Browse
+
+;game browser
+Gui, main:Add, Text, x70 y222 w150 h20 , Game Launcher
+Gui, main:Add, DropDownList, x180 y220 w490 r6 gdcgamelist vdcgamelist,
+getFolderFilelistdc(dcgameslocation,"dcgamelist")
+;selected game options
+
+
+Gui, main:add, text, x115 y254 w150 h20, Hide Mouse
+GuiControl, main:, dchidemouse, %dchidemouse% ; set the default/ ini value
+Gui, main:add, CheckBox, x180 y255 vdchidemouse gdchidemouse,
+Gui, main:add, Button, x220 y250 w100 h20 vdcconfigure gdcconfigure, Configure Emulator
+If FileExist(dcemulocation) &&	 Instr(dcemulocation, ".exe")
+	GuiControl, main:Enable, dcconfigure
+else
+	GuiControl, main:Disable, dcconfigure
+Gui, main:Add, Button, x370 y250 w100 h20 gShortcutdc vShortcutdc, Create Shortcut
+Gui, main:Add, Button, x520 y250 w100 h20 gPlaydc vPlaydc, Play
+If FileExist(dcemulocation) &&	 Instr(dcemulocation, ".exe")
+{
+	GuiControl, main:Enable, Shortcutdc
+	GuiControl, main:Enable, Playdc
+}
+else
+{
+	GuiControl, main:Disable, Shortcutdc
+	GuiControl, main:Disable, Playdc
+}
+
+Gui, main:add, text, x217 y570 w377 h20 center vdcbezelMessage, redream uses the generic Sinden software bezels (Alt+B)
+
+;~ ;bezel preview
+;~ Gui, main:Add, Text, x70 y302 w150 h20 , Bezels Location
+;~ Gui, main:Add, Edit, x180 y300 w490 h20 vdcbezelslocation gdcbezelslocation, %dcbezelslocation%
+;~ Gui, main:Add, Button, x680 y300 w100 h20 gdcbezelslocationBrowse vdcbezelslocationBrowse, Browse
+;~ gui, main:submit, nohide
+;~ Gui, main:Add, Text, x70 y442 w150 h20 , Bezel Preview
+;~ Gui, main:add, text, x217 y570 w377 h20 center vdcbezelMessage, Game bezel not found - Using generic
+;~ SplitPath, dcgamelist,,,,dcgamenoext
+;~ if !FileExist(dcbezelslocation "\" dcgamenoext ".png")
+;~ { 
+	;~ currentBezel = generic
+	;~ GuiControl, main:show, dcbezelMessage
+;~ }
+;~ else
+;~ {
+	;~ currentBezel = %dcgamenoext%
+	;~ GuiControl, main:hide, dcbezelMessage
+;~ }
+;~ Gui, main:add, picture, x215 y343 w381 h216 vbackgrounddc, %A_ScriptDir%\lib\1px.png
+;~ Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewdc, %A_ScriptDir%\SindenBezels\dc\%currentBezel%.png
+;~ Gui, main:Add, Button, x680 y440 w100 h20 gChangeBezeldc vChangeBezeldc, Change Bezel
+
 
 ; CREDITS TAB----------------------------------------------------------------------------------------------------------------------------------
-Gui, main:Tab, 5
+Gui, main:Tab, 6
 gui, main:font, s10
 gui, main:font, bold
 Gui, main:Add, Text, x40 y40 w800, Credits:
@@ -583,20 +600,15 @@ Gui, main:Add, Link,, Snes9x: Snes9x Team. <a href="https://www.snes9x.com/">Sne
 Gui, main:font
 
 
-
-
 ; add extra tabs before this-----------------------------------------------------------
 
 Gui, main:Show,  Center h600, SindenLauncher
 Return
 
-LaunchGoogle:
-Run www.google.com
-return
 
 ; Playstation Buttons   ---------    Playstation Buttons   ---------    Playstation Buttons   ---------    Playstation Buttons   ---------    Playstation Buttons   ---------   
 
-Wizardps1: ;-------  Duckstation wizard  -------  Duckstation wizard  -------  Duckstation wizard  -------  Duckstation wizard  -------  Duckstation wizard  -------  Duckstation wizard  
+Wizardps1:
 ps1emulocation := emudownloader(ps1name,latestps1,ps1size,ps1docs)"\duckstation-qt-x64-ReleaseLTCG.exe"
 GuiControl, main:, ps1emulocation, %ps1emulocation%
 sleep 200
@@ -739,7 +751,18 @@ return
 
 
 Playps1:
-Gui, main:submit, hide
+
+if (A_ScreenDPI>96)
+{
+	MsgBox, 4148, Display scaling is ON, The launcher has noticed that your display scaling is higher than 100`% `nThis can cause issues with bezels`, tracking and emulators.`nIt is recommended that you change this to 100`% before running games.`n`nDo you want to continue?
+	IfMsgBox, No
+	{
+		MsgBox, 36, Display scaling is ON, Do you know how to change the display scaling back to 100`% ?
+			IfMsgBox, No
+				run, https://www.windowscentral.com/how-set-custom-display-scaling-setting-windows-10#change_display_scaling_default_settings_windows10
+	return
+	}
+}
 playingps1 = 1
 SplitPath, ps1gamelist,,,,ps1gamenoext
 if !FileExist(ps1bezelslocation "\" ps1gamenoext ".png")
@@ -813,13 +836,7 @@ if (Errorlevel = 0)
 	GuiControl, main:hide, bezelMessage
 
 }
-else
-{ 
 return
-}
-return
-
-
 
 
 ; SNES Buttons   ---------    SNES Buttons   ---------    SNES Buttons   ---------    SNES Buttons   ---------    SNES Buttons   ---------   
@@ -848,13 +865,10 @@ Wikisnes:
 Gui, Submit, NoHide
 	run, %sneswiki%
 return
-
 Videosnes:
 Gui, Submit, NoHide
 	run, %snesvideo%
 return
-
-
 
 snesemulocation:
 Gui, main:Submit, NoHide
@@ -953,7 +967,17 @@ return
 
 
 Playsnes:
-Gui, main:submit, hide
+if (A_ScreenDPI>96)
+{
+	MsgBox, 4148, Display scaling is ON, The launcher has noticed that your display scaling is higher than 100`% `nThis can cause issues with bezels`, tracking and emulators.`nIt is recommended that you change this to 100`% before running games.`n`nDo you want to continue?
+	IfMsgBox, No
+	{
+		MsgBox, 36, Display scaling is ON, Do you know how to change the display scaling back to 100`% ?
+			IfMsgBox, No
+				run, https://www.windowscentral.com/how-set-custom-display-scaling-setting-windows-10#change_display_scaling_default_settings_windows10
+	return
+	}
+}
 playingsnes = 1
 SysGet, m1, Monitor, 1
 LeftPixel := Floor((m1right - ((m1bottom/7)*8))/2)
@@ -1033,12 +1057,191 @@ if (Errorlevel = 0)
 	GuiControl, main:hide, bezelMessage
 
 }
-else
-{ 
-return
-}
 return
 
+
+; dc Buttons   ---------    dc Buttons   ---------    dc Buttons   ---------    dc Buttons   ---------    dc Buttons   ---------   
+
+Wizarddc: ;-------  dc wizard  -------  dc wizard  -------  dc wizard  -------  dc wizard  -------  dc wizard  -------  dc wizard  
+dcemulocation := emudownloader(dcname,latestdc,dcsize,dcdocs)"\redream.exe"
+GuiControl, main:, dcemulocation, %dcemulocation%
+sleep 200
+SplitPath, dcemulocation ,, dcemufolder
+FileCopy, %A_scriptdir%\other\dc\*.*, %dcemufolder%\
+Gui, main:Submit, NoHide
+iniwrite, %dcemulocation%, sdlauncher.ini, dc, dcemulocation
+
+return
+;-------  dc wizard END  -------  dc wizard END -------  dc wizard END -------  dc wizard END  -------  dc wizard END -------  dc wizard  END 
+
+Downdc: ;manual download
+Gui, Submit, NoHide
+MsgBox, 8257, Download from the official page, 1- On the browser window you will find the `"Development Releases.`"`n`n2- Click the Windows icon under the latest Development Release
+IfMsgBox, OK
+	run, %dcmanualdownload%
+return
+Wikidc:
+Gui, Submit, NoHide
+	run, %dcwiki%
+return
+Videodc:
+Gui, Submit, NoHide
+	run, %dcvideo%
+return
+
+dcemulocation:
+Gui, main:Submit, NoHide
+iniwrite, %dcemulocation%, sdlauncher.ini, dc, dcemulocation
+If FileExist(dcemulocation) &&	 Instr(dcemulocation, ".exe")
+{
+	GuiControl, main:Enable, Shortcutdc
+	GuiControl, main:Enable, Playdc
+	GuiControl, main:Enable, dcconfigure
+}
+else
+{
+	GuiControl, main:Disable, Shortcutdc
+	GuiControl, main:Disable, Playdc
+	GuiControl, main:Disable, dcconfigure
+}
+gosub Save
+return
+dcemulocationBrowse: ; Browse for duckstation exe
+FileSelectFile, dcemulocation, S3,%dcemulocation%, Select the emulator executable, redream (redream.exe)
+if (Errorlevel = 0)
+	GuiControl, main:, dcemulocation, %dcemulocation%
+If FileExist(dcemulocation) &&	 Instr(dcemulocation, ".exe")
+{
+	GuiControl, main:Enable, Shortcutdc
+	GuiControl, main:Enable, Playdc
+	GuiControl, main:Disable, dcconfigure
+}
+else
+{
+	GuiControl, main:Disable, Shortcutdc
+	GuiControl, main:Disable, Playdc
+	GuiControl, main:Disable, dcconfigure
+}
+Gui, main:Submit, NoHide
+iniwrite, %dcemulocation%, sdlauncher.ini, dc, dcemulocation
+gosub Save
+return
+
+
+dcparameters:
+Gui, main:Submit, NoHide
+iniwrite, %dcparameters%, sdlauncher.ini, dc, dcparameters
+gosub Save
+return
+dcparametersDefault: ; Default parameters for Duckstation
+GuiControl, main:, dcparameters, 
+Gui, main:Submit, NoHide
+iniwrite, %dcparameters%, sdlauncher.ini, dc, dcparameters
+gosub Save
+return
+
+
+;~ dcbezelslocation:
+;~ Gui, main:Submit, NoHide
+;~ iniwrite, %dcbezelslocation%, sdlauncher.ini, dc, dcbezelslocation
+;~ gosub Save
+;~ return
+;~ dcbezelslocationBrowse: ; Browse for dc bezel folder
+;~ FileSelectFolder, dcbezelslocation, *%dcbezelslocation%, 3, Select your %dcsystemname% bezel folder
+;~ if (Errorlevel = 0)
+	;~ GuiControl, main:, dcbezelslocation, %dcbezelslocation%
+;~ Gui, main:Submit, NoHide
+;~ iniwrite, %dcbezelslocation%, sdlauncher.ini, dc, dcbezelslocation
+;~ gosub Save
+;~ return
+
+dchidemouse: ; Default parameters for Duckstation
+Gui, main:Submit, NoHide
+iniwrite, %dchidemouse%, sdlauncher.ini, dc, dchidemouse
+gosub Save
+return
+
+dcconfigure:
+run, `"%dcemulocation%`", %dcemufolder%
+return
+ 
+ 
+dcgameslocation:
+Gui, main:Submit, NoHide
+getFolderFilelistdc(dcgameslocation,"dcgamelist")
+Gui, main:Submit, NoHide
+gosub Save
+return
+dcgameslocationBrowser:
+FileSelectFolder, dcgameslocation, *%dcgameslocation%, 3, Select your %dcsystemname% games folder
+if (Errorlevel = 0)
+{
+	GuiControl, main:, dcgameslocation, %dcgameslocation%
+	getFolderFilelistdc(dcgameslocation,"dcgamelist")
+}
+Gui, main:Submit, NoHide
+iniwrite, %dcgameslocation%, sdlauncher.ini, dc, dcgameslocation
+gosub Save
+return
+
+
+Playdc:
+if (A_ScreenDPI>96)
+{
+	MsgBox, 4148, Display scaling is ON, The launcher has noticed that your display scaling is higher than 100`% `nThis can cause issues with bezels`, tracking and emulators.`nIt is recommended that you change this to 100`% before running games.`n`nDo you want to continue?
+	IfMsgBox, No
+	{
+		MsgBox, 36, Display scaling is ON, Do you know how to change the display scaling back to 100`% ?
+			IfMsgBox, No
+				run, https://www.windowscentral.com/how-set-custom-display-scaling-setting-windows-10#change_display_scaling_default_settings_windows10
+	return
+	}
+}
+playingdc = 1
+SysGet, m1, Monitor, 1
+LeftPixel := Floor((m1right - ((m1bottom/7)*8))/2)
+RightPixel := Floor(m1right - LeftPixel)
+SplitPath, dcgamelist,,,,dcgamenoext
+run, `"%dcemulocation%`"  %dcparameters% `"%dcgameslocation%\%dcgamelist%`"  , %dcemufolder%
+Sleep 1000
+if(dchidemouse=1)
+	hidecursor()
+sleep 300
+IfWinNotExist, frame
+{
+	SysGet, m1, Monitor, 1
+	CustomColor = 000000f  ; Can be any RGB color (it will be made transparent below).
+	Gui, 88:+Toolwindow
+	Gui, 88:+0x94C80000
+	Gui, 88:+E0x20 ; this makes this GUI clickthrough
+	Gui, 88:-Toolwindow
+	Gui, 88: +LastFound +AlwaysOnTop -Caption +ToolWindow  ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+	Gui, 88: Color, %CustomColor%
+	Gui, 88: Add, Picture, x0 y0 w%m1right% h%m1Bottom% BackGroundTrans, %dcbezelslocation%\%currentBezel%.png
+	WinSet, Style, -0xC40000, A
+	WinSet, TransColor, %CustomColor% ;150	; Make all pixels of this color transparent and make the text itself translucent (150)
+	Gui, 88: Show, x0 y0 w%m1right% h%m1Bottom%, NoActivate, frame ; NoActivate avoids deactivating the currently active window.
+	Gui, 88: Show, x0 y0 w%m1right% h%m1Bottom%, NoActivate, frame ; NoActivate avoids deactivating the currently active window.
+	WinHide, ahk_class Shell_TrayWnd
+	WinHide, ahk_class Shell_SecondaryTrayWnd
+
+}
+sleep, 300
+MouseClick , Left, 1000, 500, 1
+return
+
+dcgamelist:
+gui, main:submit, nohide
+SplitPath, dcgamelist,,,,dcgamenoext
+gosub Save
+return
+
+Shortcutdc:
+FileSelectFolder, shortcutLocation, *%A_Desktop%, 3, Select a folder to save the game shortcut
+SplitPath, dcgamelist,,,,dcgamenoext
+FileCreateShortcut, %A_ScriptFullPath%, %shortcutLocation%\%dcgamenoext%.lnk,  "%A_Scriptdir%", dc "%dcgameslocation%\%dcgamelist%", Run %dcgamenoext% with Sinden Bezels, %A_ScriptDir%\lib\Lightgun_BLACK.ico
+run, explorer.exe %shortcutLocation%
+return
 
 ; mame Buttons   ---------    mame Buttons   ---------    mame Buttons   ---------    mame Buttons   ---------    mame Buttons   ---------   
 
@@ -1146,7 +1349,7 @@ FileDelete, %mameemufolder%\temp.ini
 gosub Save
 return
 mamebezelslocationBrowse: ; Browse for mame bezel folder
-FileSelectFolder, mamebezelslocation, *%mamebezelslocation%, 3, Select your %mamesystemname% artwork folder
+FileSelectFolder, mamebezelslocation, *%mameemufolder%\artwork, 3, Select your %mamesystemname% artwork folder
 if (Errorlevel = 0)
 	GuiControl, main:, mamebezelslocation, %mamebezelslocation%
 Gui, main:Submit, NoHide
@@ -1215,7 +1418,17 @@ return
 
 
 Playmame:
-Gui, main:submit, hide
+if (A_ScreenDPI>96)
+{
+	MsgBox, 4148, Display scaling is ON, The launcher has noticed that your display scaling is higher than 100`% `nThis can cause issues with bezels`, tracking and emulators.`nIt is recommended that you change this to 100`% before running games.`n`nDo you want to continue?
+	IfMsgBox, No
+	{
+		MsgBox, 36, Display scaling is ON, Do you know how to change the display scaling back to 100`% ?
+			IfMsgBox, No
+				run, https://www.windowscentral.com/how-set-custom-display-scaling-setting-windows-10#change_display_scaling_default_settings_windows10
+	return
+	}
+}
 playingmame = 1
 SysGet, m1, Monitor, 1
 LeftPixel := Floor((m1right - ((m1bottom/7)*8))/2)
@@ -1268,10 +1481,6 @@ if (Errorlevel = 0)
 	GuiControl, main:, bezelPreviewmame, %mamebezelslocation%\%currentbezel%\BezelStandard.png
 	GuiControl, main:hide, bezelMessage
 
-}
-else
-{ 
-return
 }
 return
 
@@ -1736,6 +1945,24 @@ getFolderFilelistmame(FolderPath,guiVariable)
 
 }
 
+getFolderFilelistdc(FolderPath,guiVariable)
+{
+
+	List = 
+	loop, Files, % FolderPath "\*.*"
+		{
+			SplitPath, A_LoopFileName, Filename,,FileExtension
+			if(FileExtension="cue" or FileExtension="bin" or FileExtension="cdi" or FileExtension="gdi" or FileExtension="chd")
+				List .= FileName "|"
+		}
+	List := RTrim(List, "|")
+	List := StrReplace(List, "|", "||",, 1) ; make first item default
+	GuiControl,main:, %guiVariable%, |
+	GuiControl,main:, %guiVariable%, %List%
+	SplitPath, snesgamelist,,,,snesgamenoext
+
+}
+
 
 mainGuiClose:
 FileRemoveDir, %A_ScriptDir%\temp, 1
@@ -1767,6 +1994,15 @@ IniWrite, %mamebezelslocation%, sdlauncher.ini, mame, mamebezelsLocation
 IniWrite, %mamegameslocation%, sdlauncher.ini, mame, mamegameslocation
 IniWrite, %mamehidemouse%, sdlauncher.ini, mame, mamehidemouse
 
+
+;[dc]
+IniWrite, %dcemulocation%, sdlauncher.ini, dc, dcemulocation
+IniWrite, %dcparameters%, sdlauncher.ini, dc, dcparameters
+IniWrite, %dcbezelslocation%, sdlauncher.ini, dc, dcbezelsLocation
+IniWrite, %dcgameslocation%, sdlauncher.ini, dc, dcgameslocation
+IniWrite, %dchidemouse%, sdlauncher.ini, dc, dchidemouse
+
+
 if FileExist(ps1emufolder "\settings.ini")
 {
 	iniwrite, %ps1gameslocation%, %ps1emufolder%\settings.ini, GameList, Paths
@@ -1780,7 +2016,6 @@ GuiControl, main:Hide, DiskIcon
 GuiControl, main:hide, DiskIconps1
 GuiControl, main:hide, DiskIconsnes
 return
-
 
  ^!+n:: ; this is a debug feature, cleans up the environment back to initial installation status
 FileRemoveDir, %A_ScriptDir%\temp\, 1
@@ -1828,6 +2063,22 @@ $Esc::
 Process,Close,mame
 Run,taskkill /im "mame.exe" /F
 playingmame = 0
+if (numParams = 0)
+	gui, main: show
+else
+	ExitApp
+#If
+
+#If (playingdc)
+$Esc::
+showcursor()
+Process,Close,redream
+Run,taskkill /im "redream.exe" /F
+WinShow, ahk_class Shell_TrayWnd
+WinShow, ahk_class Shell_SecondaryTrayWnd
+gui, 88:destroy
+playingdc = 0
+Run,taskkill /im "redream" /F
 if (numParams = 0)
 	gui, main: show
 else
