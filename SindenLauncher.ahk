@@ -28,6 +28,18 @@ I_Icon = %A_ScriptDir%\lib\Lightgun_RED.ico ; give the app a nice icon for the t
 IfExist, %I_Icon%
 Menu, Tray, Icon, %I_Icon%
 
+FileDelete, %a_scriptdir%\temp\latest.txt
+FileCreateDir, %a_scriptdir%\temp
+
+version := "https://raw.githubusercontent.com/darkphoenixfox/SDLauncher_Public/main/version.txt"
+
+UrlDownloadToFile, %version%, %a_scriptdir%\temp\latest.txt
+filereadline, latest, %a_Scriptdir%\temp\latest.txt , 1
+FileReadLine, current, %a_scriptdir%\version.txt , 1
+if (latest > current)
+update = 1
+
+
 
 ; INI FILE  -----   INI FILE  -----   INI FILE  -----   INI FILE  -----   INI FILE  -----   INI FILE  -----   INI FILE  -----   INI FILE  -----   INI FILE  -----   INI FILE  -----
 
@@ -224,12 +236,12 @@ Gui, main:Add, Edit, x400 y130 w290 h20 vp1sindenlocation gp1sindenlocation, %p1
 Gui, main:Add, Button, x700 y130 w100 h20 gp1sindenlocationBrowse vp1sindenlocationBrowse , Browse
 
 ;gun 2 section
-	Gui, main:Add, Picture, x30 y200 w32 h32 vSindenIcon2, %A_ScriptDir%\lib\Lightgun_BLUE.ico
-	gui, main:font, bold
-	Gui, main:Add, Button, x100 y205 w100 h20 gRUN2 Default vRUN2, RUN 
-	gui, main:font
-	Gui, main:Add, Button, x220 y205 w100 h20 gCONFIG2 vCONFIG2, Configure 
-	Gui, main:Add, Text, x40 y230 w400 vWarning2,  
+Gui, main:Add, Picture, x30 y200 w32 h32 vSindenIcon2, %A_ScriptDir%\lib\Lightgun_BLUE.ico
+gui, main:font, bold
+Gui, main:Add, Button, x100 y205 w100 h20 gRUN2 Default vRUN2, RUN 
+gui, main:font
+Gui, main:Add, Button, x220 y205 w100 h20 gCONFIG2 vCONFIG2, Configure 
+Gui, main:Add, Text, x40 y230 w400 vWarning2,  
 
 If !FileExist(p2sindenlocation "\Lightgun.exe")
 {
@@ -239,9 +251,9 @@ If !FileExist(p2sindenlocation "\Lightgun.exe")
 	gui, main:submit, nohide
 	
 }
-	Gui, main:Add, Text, x370 y207 w150 h20 vPathlabel, Path:
-	Gui, main:Add, Edit, x400 y205 w290 h20 vp2sindenlocation gp2sindenlocation, %p2sindenlocation%
-	Gui, main:Add, Button, x700 y205 w100 h20 vp2sindenlocationBrowse gp2sindenlocationBrowse , Browse
+Gui, main:Add, Text, x370 y207 w150 h20 vPathlabel, Path:
+Gui, main:Add, Edit, x400 y205 w290 h20 vp2sindenlocation gp2sindenlocation, %p2sindenlocation%
+Gui, main:Add, Button, x700 y205 w100 h20 vp2sindenlocationBrowse gp2sindenlocationBrowse , Browse
 
 if (numberofguns=1)
 {
@@ -254,6 +266,12 @@ if (numberofguns=1)
 	GuiControl, main:hide, p2sindenlocationBrowse
 	
 }
+
+
+gui, main:font, cFF0000 bold
+gui, main:add, text, x200 y527, New version of the Sinden Launcher Available
+gui, main:add, button, x475 y522 gupdater vupdater, Download
+gui, main:font, norm
 
 
 ;Playstation 1 TAB -----------   Playstation 1 TAB -----------   Playstation 1 TAB -----------   Playstation 1 TAB -----------   Playstation 1 TAB -----------   
@@ -2008,6 +2026,10 @@ if FileExist(ps1emufolder "\settings.ini")
 	iniwrite, %ps1gameslocation%, %ps1emufolder%\settings.ini, GameList, Paths
 }
 
+ExitApp
+
+updater:
+run, SDUpdater.exe
 ExitApp
 
 RemoveToolTip:
