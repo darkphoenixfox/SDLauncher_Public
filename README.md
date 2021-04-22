@@ -19,19 +19,24 @@ SNES emulator is installed and configured in the SNES tab. You can also configur
 ## Commandline and Launchbox usage:
 
 SDLauncher accepts 2 parameters from commandline:
-- 1st parameter for the system: ps1 or snes
-- 2nd parameter for the game: full path to your iso or rom file. Quotes are required if the path has any spaces:
+- 1st parameter for the system: ps1 mame snes -or- dc
+- 2nd parameter for the game: full path to your iso or rom file or MAME rom name. Quotes are required if the path has any spaces:
 
-Example: *SDlauncher.exe ps1 "C:\games\Playstation 1\Time Crisis (U).iso"*
+Examples: 
+*SDlauncher.exe ps1 "C:\games\Playstation 1\Time Crisis (U).iso"*
+*SDlauncher.exe mame area51
+
 
 
 ## Completed features
 - Install and configure sinden software for 1 or 2 guns
-- Install and configure duckstation
-- Install and configure SNES9x
-- Configure bezels for SNES
-- Configure bezels for PS1
-- Run games from commandline
+- Install and Confgiure the following emulators:
+    - MAME
+    - SNES9x
+    - Redream
+    - Duckstation
+- Configure bezels for SNES, PS1 and MAME
+- Run games from commandline and launchers like Launchbox.
 
 ## To do features
 
