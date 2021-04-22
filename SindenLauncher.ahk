@@ -2029,7 +2029,14 @@ if FileExist(ps1emufolder "\settings.ini")
 ExitApp
 
 updater:
-run, SDUpdater.exe
+run, SDUpdater.exe, UseErrorLevel
+if (ErrorLevel = "ERROR")
+{
+MsgBox The updater app is missing.
+run, https://github.com/darkphoenixfox/SDLauncher_Public/releases/tag/latest
+return
+}
+
 ExitApp
 
 RemoveToolTip:
