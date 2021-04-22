@@ -1,6 +1,3 @@
-# SDLauncher
-Development repo of the SDLauncher Sinden gun configuration assistant
-
 
 ## Installation:
 
@@ -34,6 +31,7 @@ Example: *SDlauncher.exe ps1 "C:\games\Playstation 1\Time Crisis (U).iso"*
 - Run games from commandline
 
 ## To do features
+
 
 ## Prerequisites
 - Windows 7/8/10
