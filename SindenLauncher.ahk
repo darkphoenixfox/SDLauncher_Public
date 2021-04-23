@@ -276,6 +276,10 @@ if (update)
 	gui, main:font, norm	
 }
 
+gui, main:font, cbfbfbf
+gui, main:add, text, x750 y575, v%current%
+gui, main:font, norm
+
 ;Playstation 1 TAB -----------   Playstation 1 TAB -----------   Playstation 1 TAB -----------   Playstation 1 TAB -----------   Playstation 1 TAB -----------   
 Gui, main:Tab, 2 
 Gui, main:Add, Picture, x735 y545 vDiskIconps1, %A_ScriptDir%\lib\disk.png
