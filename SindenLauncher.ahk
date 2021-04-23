@@ -37,7 +37,7 @@ UrlDownloadToFile, %version%, %a_scriptdir%\temp\latest.txt
 filereadline, latest, %a_Scriptdir%\temp\latest.txt , 1
 FileReadLine, current, %a_scriptdir%\version.txt , 1
 if (latest > current)
-update = 1
+	update = 1
 
 
 
@@ -267,12 +267,13 @@ if (numberofguns=1)
 	
 }
 
-
-gui, main:font, cFF0000 bold
-gui, main:add, text, x200 y527, New version of the Sinden Launcher Available
-gui, main:add, button, x475 y522 gupdater vupdater, Download
-gui, main:font, norm
-
+if (update)
+{
+	gui, main:font, cFF0000 bold
+	gui, main:add, text, x200 y527, New version of the Sinden Launcher Available
+	gui, main:add, button, x475 y522 gupdater vupdater, Download
+	gui, main:font, norm	
+}
 
 ;Playstation 1 TAB -----------   Playstation 1 TAB -----------   Playstation 1 TAB -----------   Playstation 1 TAB -----------   Playstation 1 TAB -----------   
 Gui, main:Tab, 2 
