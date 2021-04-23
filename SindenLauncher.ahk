@@ -38,6 +38,7 @@ filereadline, latest, %a_Scriptdir%\temp\latest.txt , 1
 FileReadLine, current, %a_scriptdir%\version.txt , 1
 if (latest > current)
 	update = 1
+sleep 300
 
 
 
