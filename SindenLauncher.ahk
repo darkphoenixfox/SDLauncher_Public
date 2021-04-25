@@ -52,14 +52,7 @@ iniread, latestsoftware, sdlauncher.ini, general, latestsoftware, https://www.si
 iniread, softwaresize, sdlauncher.ini, general, softwaresize, 23855276
 iniread, softwarehash, sdlauncher.ini, general, softwarehash, 1672dc77d6cc505bd47cb85ffbf9b393
 
-;[ps1]
-IniRead, ps1emulocation, sdlauncher.ini, ps1, ps1emulocation, Path to emulator executable
-IniRead, ps1parameters, sdlauncher.ini, ps1, ps1parameters, -fullscreen
-IniRead, ps1gameslocation, sdlauncher.ini, ps1, ps1gameslocation, Select your games folder
-IniRead, ps1bezelslocation, sdlauncher.ini, ps1, ps1bezelsLocation, %A_ScriptDir%\SindenBezels\ps1
-IniRead, ps1hidemouse, sdlauncher.ini, ps1, ps1hidemouse, 0
-
-;static
+;static PS1
 IniRead, ps1systemname, sdlauncher.ini, ps1, ps1systemname, PlayStation
 IniRead, ps1name, sdlauncher.ini, ps1, ps1name, Duckstation
 iniread, latestps1, sdlauncher.ini, ps1, latestps1, https://github.com/stenzek/duckstation/releases/download/latest/duckstation-windows-x64-release.zip
@@ -69,18 +62,16 @@ iniread, ps1docs, sdlauncher.ini, ps1, ps1docs, https://github.com/stenzek/ducks
 IniRead, ps1wiki, sdlauncher.ini, ps1, ps1wiki, https://sindenlightgun.miraheze.org/wiki/Duckstation
 IniRead, ps1video, sdlauncher.ini, ps1, ps1video, https://youtu.be/OvyUvxzBLOc
 
+;[ps1]
+IniRead, ps1emulocation, sdlauncher.ini, ps1, ps1emulocation, Path to emulator executable
+IniRead, ps1parameters, sdlauncher.ini, ps1, ps1parameters, -fullscreen
+IniRead, ps1gameslocation, sdlauncher.ini, ps1, ps1gameslocation, Select your games folder
+IniRead, ps1bezelslocation, sdlauncher.ini, ps1, ps1bezelsLocation, %A_ScriptDir%\SindenBezels\%ps1systemname%
+IniRead, ps1hidemouse, sdlauncher.ini, ps1, ps1hidemouse, 0
 
 SplitPath, ps1emulocation ,, ps1emufolder
 
-
-;[snes]
-IniRead, snesemulocation, sdlauncher.ini, snes, snesemulocation, Path to emulator executable
-IniRead, snesparameters, sdlauncher.ini, snes, snesparameters, -fullscreen -port2 superscope
-IniRead, snesgameslocation, sdlauncher.ini, snes, snesgameslocation, Select your games folder
-IniRead, snesbezelslocation, sdlauncher.ini, snes, snesbezelsLocation, %A_ScriptDir%\SindenBezels\snes
-IniRead, sneshidemouse, sdlauncher.ini, snes, sneshidemouse, 0
-
-;static
+;static SNES
 IniRead, snessystemname, sdlauncher.ini, snes, snessystemname, SuperNES
 IniRead, snesname, sdlauncher.ini, snes, snesname, Snes9x
 iniread, latestsnes, sdlauncher.ini, snes, latestsnes, https://github.com/ProfgLX/snes9xLightgun/releases/latest/download/Snes9x.Lightgun.Edition.zip
@@ -90,16 +81,16 @@ iniread, snesdocs, sdlauncher.ini, snes, snesdocs, https://www.snes9x.com/
 IniRead, sneswiki, sdlauncher.ini, snes, sneswiki, https://sindenlightgun.miraheze.org/wiki/SNES9X
 IniRead, snesvideo, sdlauncher.ini, snes, snesvideo, https://www.youtube.com/watch?v=yvP_-KLqLQE
 
+;[snes]
+IniRead, snesemulocation, sdlauncher.ini, snes, snesemulocation, Path to emulator executable
+IniRead, snesparameters, sdlauncher.ini, snes, snesparameters, -fullscreen -port2 superscope
+IniRead, snesgameslocation, sdlauncher.ini, snes, snesgameslocation, Select your games folder
+IniRead, snesbezelslocation, sdlauncher.ini, snes, snesbezelsLocation, %A_ScriptDir%\SindenBezels\%snessystemname%
+IniRead, sneshidemouse, sdlauncher.ini, snes, sneshidemouse, 0
+
 SplitPath, snesemulocation ,, snesemufolder
 
-;[mame]
-IniRead, mameemulocation, sdlauncher.ini, mame, mameemulocation, Path to emulator executable
-IniRead, mameparameters, sdlauncher.ini, mame, mameparameters, -keyboardprovider dinput
-IniRead, mamegameslocation, sdlauncher.ini, mame, mamegameslocation, Select your games folder
-IniRead, mamebezelslocation, sdlauncher.ini, mame, mamebezelsLocation, %A_ScriptDir%\other\mame\artwork
-IniRead, mamehidemouse, sdlauncher.ini, mame, mamehidemouse, 0
-
-;static
+;static MAME
 IniRead, mamesystemname, sdlauncher.ini, mame, mamesystemname, MAME
 IniRead, mamename, sdlauncher.ini, mame, mamename, MAME
 iniread, latestmame, sdlauncher.ini, mame, latestmame, https://github.com/mamedev/mame/releases/download/mame0230/mame0230b_64bit.exe
@@ -109,16 +100,16 @@ iniread, mamedocs, sdlauncher.ini, mame, mamedocs, https://docs.mamedev.org/
 IniRead, mamewiki, sdlauncher.ini, mame, mamewiki, https://sindenlightgun.miraheze.org/wiki/Mame
 IniRead, mamevideo, sdlauncher.ini, mame, mamevideo, https://www.youtube.com/watch?v=CAvVOjOWaxk
 
+;[mame]
+IniRead, mameemulocation, sdlauncher.ini, mame, mameemulocation, Path to emulator executable
+IniRead, mameparameters, sdlauncher.ini, mame, mameparameters, -keyboardprovider dinput
+IniRead, mamegameslocation, sdlauncher.ini, mame, mamegameslocation, Select your games folder
+IniRead, mamebezelslocation, sdlauncher.ini, mame, mamebezelsLocation, %A_ScriptDir%\other\%mamesystemname%\artwork
+IniRead, mamehidemouse, sdlauncher.ini, mame, mamehidemouse, 0
+
 SplitPath, mameemulocation ,, mameemufolder
 
-;[dc]
-IniRead, dcemulocation, sdlauncher.ini, dc, dcemulocation, Path to emulator executable
-IniRead, dcparameters, sdlauncher.ini, dc, dcparameters, %a_space%
-IniRead, dcgameslocation, sdlauncher.ini, dc, dcgameslocation, Select your games folder
-IniRead, dcbezelslocation, sdlauncher.ini, dc, dcbezelsLocation, %A_ScriptDir%\other\dc\artwork
-IniRead, dchidemouse, sdlauncher.ini, dc, dchidemouse, 0
-
-;static
+;static DC
 IniRead, dcsystemname, sdlauncher.ini, dc, dcsystemname, Dreamcast
 IniRead, dcname, sdlauncher.ini, dc, dcname, Redream
 iniread, latestdc, sdlauncher.ini, dc, latestdc, https://redream.io/download/redream.x86_64-windows-v1.5.0-868-g05b9cbe.zip
@@ -127,6 +118,14 @@ iniread, dcsize, sdlauncher.ini, dc, dcsize,  2530123
 iniread, dcdocs, sdlauncher.ini, dc, dcdocs, https://redream.io/help
 IniRead, dcwiki, sdlauncher.ini, dc, dcwiki, https://sindenlightgun.miraheze.org/wiki/Redream
 IniRead, dcvideo, sdlauncher.ini, dc, dcvideo, https://www.youtube.com/channel/UChXWTBXCEU8kn5haxczwiyQ
+
+;[dc]
+IniRead, dcemulocation, sdlauncher.ini, dc, dcemulocation, Path to emulator executable
+IniRead, dcparameters, sdlauncher.ini, dc, dcparameters, %a_space%
+IniRead, dcgameslocation, sdlauncher.ini, dc, dcgameslocation, Select your games folder
+IniRead, dcbezelslocation, sdlauncher.ini, dc, dcbezelsLocation, %A_ScriptDir%\other\%dcsystemname%\artwork
+IniRead, dchidemouse, sdlauncher.ini, dc, dchidemouse, 0
+IniRead, dcreshade, sdlauncher.ini, dc, dcreshade, 0
 
 SplitPath, dcemulocation ,, dcemufolder
 
@@ -350,7 +349,7 @@ else
 	GuiControl, main:hide, ps1bezelMessage
 }
 Gui, main:add, picture, x215 y343 w381 h216 vbackgroundps1, %A_ScriptDir%\lib\1px.png
-Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewps1, %A_ScriptDir%\SindenBezels\ps1\%currentBezel%.png
+Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewps1, %A_ScriptDir%\SindenBezels\%ps1systemname%\%currentBezel%.png
 Gui, main:Add, Button, x680 y440 w100 h20 gChangeBezelps1 vChangeBezelps1, Change Bezel
 
 
@@ -431,7 +430,7 @@ else
 	GuiControl, main:hide, snesbezelMessage
 }
 Gui, main:add, picture, x215 y343 w381 h216 vbackgroundsnes, %A_ScriptDir%\lib\1px.png
-Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewsnes, %A_ScriptDir%\SindenBezels\snes\%currentBezel%.png
+Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewsnes, %A_ScriptDir%\SindenBezels\%snessystemname%\%currentBezel%.png
 Gui, main:Add, Button, x680 y440 w100 h20 gChangeBezelsnes vChangeBezelsnes, Change Bezel
 
 
@@ -576,7 +575,11 @@ else
 	GuiControl, main:Disable, Playdc
 }
 
-Gui, main:add, text, x217 y570 w377 h20 center vdcbezelMessage, Redream uses the generic Sinden software bezels (Alt+B)
+Gui, main:add, text, x95 y334 w150 h20, Reshade Bezels
+GuiControl, main:, dcreshade, %dcreshade% ; set the default/ ini value
+Gui, main:add, CheckBox, x180 y335 vdcreshade gdcreshade,
+
+Gui, main:add, text, x217 y350 w377 h40 center vdcbezelMessage, %dcname% uses Reshade or Sinden Software for bezels.`n If you have issues running %dcname% in Borderless Fullscreen mode, enable the Reshade bezels.
 
 ;~ ;bezel preview
 ;~ Gui, main:Add, Text, x70 y302 w150 h20 , Bezels Location
@@ -597,7 +600,7 @@ Gui, main:add, text, x217 y570 w377 h20 center vdcbezelMessage, Redream uses the
 	;~ GuiControl, main:hide, dcbezelMessage
 ;~ }
 ;~ Gui, main:add, picture, x215 y343 w381 h216 vbackgrounddc, %A_ScriptDir%\lib\1px.png
-;~ Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewdc, %A_ScriptDir%\SindenBezels\dc\%currentBezel%.png
+;~ Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewdc, %A_ScriptDir%\SindenBezels\%dcsystemname%\%currentBezel%.png
 ;~ Gui, main:Add, Button, x680 y440 w100 h20 gChangeBezeldc vChangeBezeldc, Change Bezel
 
 
@@ -638,8 +641,8 @@ GuiControl, main:, ps1emulocation, %ps1emulocation%
 sleep 200
 SplitPath, ps1emulocation ,, ps1emufolder
 FileAppend, , %ps1emufolder%\portable.txt
-FileCopy, %A_scriptdir%\other\ps1\inputprofiles\*.*, %ps1emufolder%\inputprofiles,1
-FileCopy, %A_scriptdir%\other\ps1\*.ini, %ps1emufolder% ,1
+FileCopy, %A_scriptdir%\other\%ps1systemname%\inputprofiles\*.*, %ps1emufolder%\inputprofiles,1
+FileCopy, %A_scriptdir%\other\%ps1systemname%\*.ini, %ps1emufolder% ,1
 MsgBox, 8240, Playstation BIOS required, Duckstation requires a Playstation BIOS to run`, for example:`n`nscph5500.bin`nscph5501.bin`nscph5502.bin`n`nThese are not provided with the emulator`, you will need to source them using your own means.`n`nYou need to place then in the BIOS folder.`n`nLet me open the folder for you....
 FileCreateDir %ps1emufolder%\bios\
 FileAppend, , %ps1emufolder%\bios\place your bios files.txt
@@ -831,7 +834,7 @@ else
 	currentBezel = %ps1gamenoext%
 	GuiControl, main:hide, ps1bezelMessage
 }
-GuiControl, main:, bezelPreviewps1, %A_ScriptDir%\SindenBezels\ps1\%currentBezel%.png
+GuiControl, main:, bezelPreviewps1, %A_ScriptDir%\SindenBezels\%ps1systemname%\%currentBezel%.png
 gosub Save
 return
 
@@ -856,7 +859,7 @@ if (Errorlevel = 0)
 	}
 	FileCopy, %newBezel%, %ps1bezelslocation%\%ps1gamenoext%.png, 1
 	currentBezel = %ps1gamenoext%
-	GuiControl, main:, bezelPreviewps1, %A_ScriptDir%\SindenBezels\ps1\%currentBezel%.png
+	GuiControl, main:, bezelPreviewps1, %A_ScriptDir%\SindenBezels\%ps1systemname%\%currentBezel%.png
 	GuiControl, main:hide, bezelMessage
 
 }
@@ -871,7 +874,7 @@ GuiControl, main:, snesemulocation, %snesemulocation%
 sleep 200
 SplitPath, snesemulocation ,, snesemufolder
 FileAppend, , %snesemufolder%\portable.txt
-FileCopy, %A_scriptdir%\other\snes\*.*, %snesemufolder%\
+FileCopy, %A_scriptdir%\other\%snessystemname%\*.*, %snesemufolder%\
 Gui, main:Submit, NoHide
 ;SendMessage, 0x1330, 2,, SysTabControl321, WinTitle ; 0x1330 is TCM_SETCURFOCUS.
 iniwrite, %snesemulocation%, sdlauncher.ini, snes, snesemulocation
@@ -1052,7 +1055,7 @@ else
 	currentBezel = %snesgamenoext%
 	GuiControl, main:hide, snesbezelMessage
 }
-GuiControl, main:, bezelPreviewsnes, %A_ScriptDir%\SindenBezels\snes\%currentBezel%.png
+GuiControl, main:, bezelPreviewsnes, %A_ScriptDir%\SindenBezels\%snessystemname%\%currentBezel%.png
 gosub Save
 return
 
@@ -1077,7 +1080,7 @@ if (Errorlevel = 0)
 	}
 	FileCopy, %newBezel%, %snesbezelslocation%\%snesgamenoext%.png, 1
 	currentBezel = %snesgamenoext%
-	GuiControl, main:, bezelPreviewsnes, %A_ScriptDir%\SindenBezels\snes\%currentBezel%.png
+	GuiControl, main:, bezelPreviewsnes, %A_ScriptDir%\SindenBezels\%snessystemname%\%currentBezel%.png
 	GuiControl, main:hide, bezelMessage
 
 }
@@ -1091,7 +1094,7 @@ dcemulocation := emudownloader(dcname,latestdc,dcsize,dcdocs)"\redream.exe"
 GuiControl, main:, dcemulocation, %dcemulocation%
 sleep 200
 SplitPath, dcemulocation ,, dcemufolder
-FileCopy, %A_scriptdir%\other\dc\*.*, %dcemufolder%\
+FileCopyDir, %A_scriptdir%\other\%dcsystemname%, %dcemufolder% , 1
 Gui, main:Submit, NoHide
 iniwrite, %dcemulocation%, sdlauncher.ini, dc, dcemulocation
 
@@ -1164,6 +1167,14 @@ iniwrite, %dcparameters%, sdlauncher.ini, dc, dcparameters
 gosub Save
 return
 
+dcreshade:
+gui, main:Submit, NoHide
+if (dcreshade = 1)
+	FileCopy, %A_Scriptdir%\lib\opengl32.dll, %dcemufolder% , 1
+if (dcreshade = 0)
+	FileDelete, %dcemufolder%\opengl32.dll
+IniWrite, %dcreshade%, sdlauncher.ini, dc, ddreshade
+return
 
 ;~ dcbezelslocation:
 ;~ Gui, main:Submit, NoHide
@@ -1274,7 +1285,7 @@ mameemulocation := emudownloader(mamename,latestmame,mamesize,mamedocs)"\mame.ex
 GuiControl, main:, mameemulocation, %mameemulocation%
 sleep 200
 SplitPath, mameemulocation ,, mameemufolder
-FileCopyDir, %A_scriptdir%\other\mame, %mameemufolder% , 1
+FileCopyDir, %A_scriptdir%\other\%mamesystemname%, %mameemufolder% , 1
 sleep 50
 run, `"%mameemulocation%`" -cc , %mameemufolder%, hide
 Gui, main:Submit, NoHide
@@ -2031,7 +2042,7 @@ IniWrite, %dcparameters%, sdlauncher.ini, dc, dcparameters
 IniWrite, %dcbezelslocation%, sdlauncher.ini, dc, dcbezelsLocation
 IniWrite, %dcgameslocation%, sdlauncher.ini, dc, dcgameslocation
 IniWrite, %dchidemouse%, sdlauncher.ini, dc, dchidemouse
-
+IniWrite, %dcreshade%, sdlauncher.ini, dc, dcreshade
 
 if FileExist(ps1emufolder "\settings.ini")
 {
