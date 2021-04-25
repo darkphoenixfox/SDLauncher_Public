@@ -503,7 +503,7 @@ Gui, main:Add, Button, x680 y300 w100 h20 gmamebezelslocationBrowse vmamebezelsl
 gui, main:submit, nohide
 Gui, main:Add, Text, x70 y442 w150 h20 , Bezel Preview
 Gui, main:add, text, x217 y570 w377 h20 center vmamebezelMessage, Game bezel not found - Using generic
-SplitPath, mamegamelist,,,,mamegamenoext
+mamegamenoext := SubStr(mamegamelist,1,InStr(mamegamelist, "-") - 2)
 if !FileExist(mamebezelslocation "\" mamegamenoext "\BezelStandard.png")
 { 
 	currentBezel = default
@@ -1457,14 +1457,15 @@ playingmame = 1
 SysGet, m1, Monitor, 1
 LeftPixel := Floor((m1right - ((m1bottom/7)*8))/2)
 RightPixel := Floor(m1right - LeftPixel)
-SplitPath, mamegamelist,,,,mamegamenoext
-run, `"%mameemulocation%`"  %mameparameters% `"%mamegameslocation%\%mamegamelist%`" , %mameemufolder%
+;SplitPath, mamegamelist,,,,mamegamenoext
+mamegamenoext := SubStr(mamegamelist,1,InStr(mamegamelist, "-") - 2)
+run, `"%mameemulocation%`"  %mameparameters% `"%mamegameslocation%\%mamegamenoext%`" , %mameemufolder%
 return
 
 mamegamelist:
 gui, main:submit, nohide
-SplitPath, mamegamelist,,,,mamegamenoext
-if !FileExist(mamebezelslocation "\" mamegamenoext "\BezelStandard.png")
+mamegamenoext := SubStr(mamegamelist,1,InStr(mamegamelist, "-") - 2)
+if !FileExist(mamebezelslocation "\" mamegamenoext "\BezelStandard.png") && !FileExist(mamebezelslocation "\" mamegamenoext "\BezelStandard1.png")
 {
 	currentBezel = default
 	GuiControl, main:show, mamebezelMessage
@@ -1474,19 +1475,22 @@ else
 	currentBezel = %mamegamenoext%
 	GuiControl, main:hide, mamebezelMessage
 }
-GuiControl, main:, bezelPreviewmame, %mamebezelslocation%\%currentbezel%\BezelStandard.png
+if FileExist(mamebezelslocation "\" mamegamenoext "\BezelStandard1.png")
+	GuiControl, main:, bezelPreviewmame, %mamebezelslocation%\%currentbezel%\BezelStandard1.png
+if FileExist(mamebezelslocation "\" mamegamenoext "\BezelStandard.png")
+	GuiControl, main:, bezelPreviewmame, %mamebezelslocation%\%currentbezel%\BezelStandard.png
 gosub Save
 return
 
 Shortcutmame:
 FileSelectFolder, shortcutLocation, *%A_Desktop%, 3, Select a folder to save the game shortcut
-SplitPath, mamegamelist,,,,mamegamenoext
+mamegamenoext := SubStr(mamegamelist,1,InStr(mamegamelist, "-") - 2)
 FileCreateShortcut, %A_ScriptFullPath%, %shortcutLocation%\%mamegamenoext%.lnk,  "%A_Scriptdir%", mame "%mamegamenoext%", Run %mamegamenoext% with Sinden Bezels, %A_ScriptDir%\lib\Lightgun_BLACK.ico
 run, explorer.exe %shortcutLocation%
 return
 
 ChangeBezelmame:
-SplitPath, mamegamelist,,,,mamegamenoext
+mamegamenoext := SubStr(mamegamelist,1,InStr(mamegamelist, "-") - 2)
 FileSelectFolder, newBezel, *%mamebezelslocation% , 3, Select new artwork folder for %mamegamenoext%
 if (Errorlevel = 0)
 {
@@ -1954,18 +1958,20 @@ getFolderFilelistmame(FolderPath,guiVariable)
 	loop, Files, % FolderPath "\*.*"
 		{
 			SplitPath, A_LoopFileName, Filename,,FileExtension
-			if(system=ps1)
+			if(FileExtension="ZIP")
 			{
-				if(FileExtension="ZIP")
-					List .= FileName "|"
+				SplitPath, Filename,,,,mamegamenoext
+				Iniread, mamegamename, %A_scriptdir%\lib\mamegamelist.ini,General, %mamegamenoext%
+				if !(mamegamename="ERROR")
+				{
+					List .= mamegamenoext " - " mamegamename "|"
+				}
 			}
-
 		}
 	List := RTrim(List, "|")
 	List := StrReplace(List, "|", "||",, 1) ; make first item default
 	GuiControl,main:, %guiVariable%, |
 	GuiControl,main:, %guiVariable%, %List%
-	SplitPath, mamegamelist,,,,mamegamenoext
 
 }
 
