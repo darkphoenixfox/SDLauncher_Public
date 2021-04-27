@@ -112,7 +112,7 @@ SplitPath, mameemulocation ,, mameemufolder
 ;static DC
 IniRead, dcsystemname, sdlauncher.ini, dc, dcsystemname, Dreamcast
 IniRead, dcname, sdlauncher.ini, dc, dcname, Redream
-iniread, latestdc, sdlauncher.ini, dc, latestdc, https://redream.io/download/redream.x86_64-windows-v1.5.0-868-g05b9cbe.zip
+iniread, latestdc, sdlauncher.ini, dc, latestdc, https://redream.io/download/redream.x86_64-windows-v1.5.0-889-g6bb2cfc.zip
 iniread, dcmanualdownload, launcher.ini, dc, dcmanualdownload, https://redream.io/download
 iniread, dcsize, sdlauncher.ini, dc, dcsize,  2530123
 iniread, dcdocs, sdlauncher.ini, dc, dcdocs, https://redream.io/help
@@ -660,6 +660,7 @@ MsgBox, 8257, Download from the official github, 1- On the browser window you wi
 IfMsgBox, OK
 	run, %ps1manualdownload%
 return
+
 Wikips1:
 Gui, Submit, NoHide
 	run, %ps1wiki%
