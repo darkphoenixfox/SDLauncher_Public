@@ -21,7 +21,7 @@ systemParam = %1% ;system
 gameParam = %2% ; iso name with full path or rom name for mame
 systems := [] ; Init array
 ;.systems := [ps1,ps2,snes,demul,mame]
-systems := {"ps1":0,"snes":0,"mame":0,"dc":0} ; needs to be changed to add more systems
+systems := {"ps1":0,"snes":0, "nes":0, "fc":0, "mame":0,"dc":0} ; needs to be changed to add more systems
 FileCreateDir, %a_scriptdir%\temp
 
 I_Icon = %A_ScriptDir%\lib\Lightgun_RED.ico ; give the app a nice icon for the tray and the Windows
@@ -89,6 +89,25 @@ IniRead, snesbezelslocation, sdlauncher.ini, snes, snesbezelsLocation, %A_Script
 IniRead, sneshidemouse, sdlauncher.ini, snes, sneshidemouse, 0
 
 SplitPath, snesemulocation ,, snesemufolder
+
+;static Famicom
+IniRead, fcsystemname, sdlauncher.ini, fc, fcsystemname, NES
+IniRead, fcname, sdlauncher.ini, fc, fcname, Mesen
+iniread, latestfc, sdlauncher.ini, fc, latestfc, https://github.com/mkwong98/Mesen/releases/download/0.9.9-210415/Mesenx64.zip
+iniread, fcmanualdownload, launcher.ini, fc, fcmanualdownload, https://github.com/mkwong98/Mesen/releases
+iniread, fcsize, sdlauncher.ini, fc, fcsize, 6193390
+iniread, fcdocs, sdlauncher.ini, fc, fcdocs, https://www.mesen.ca/
+IniRead, fcwiki, sdlauncher.ini, fc, fcwiki, https://sindenlightgun.miraheze.org/wiki/Mesen
+IniRead, fcvideo, sdlauncher.ini, fc, fcvideo, https://www.youtube.com/watch?v=btsldXfGyk8
+
+;[fc]
+IniRead, fcemulocation, sdlauncher.ini, fc, fcemulocation, Path to emulator executable
+IniRead, fcparameters, sdlauncher.ini, fc, fcparameters, -fullscreen
+IniRead, fcgameslocation, sdlauncher.ini, fc, fcgameslocation, Select your games folder
+IniRead, fcbezelslocation, sdlauncher.ini, fc, fcbezelsLocation, %A_ScriptDir%\SindenBezels\%fcsystemname%
+IniRead, fchidemouse, sdlauncher.ini, fc, fchidemouse, 0
+
+SplitPath, fcemulocation ,, fcemufolder
 
 ;static MAME
 IniRead, mamesystemname, sdlauncher.ini, mame, mamesystemname, MAME
@@ -178,6 +197,11 @@ if (numParams > 0) ; Find out if the user is trying to open the UI or run a game
 			SplitPath, gameParam,dcgamelist,dcgameslocation
 			Gosub Playdc
 		}
+				if (systemParam="nes" or systemParam="fc")
+		{
+			SplitPath, gameParam,fcgamelist,fcgameslocation
+			Gosub Playfc
+		}
 		return
 	}
 }
@@ -191,7 +215,7 @@ return
 ;   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----
 showUI:
 
-Gui, main:Add, Tab3, w800 h600 Center, Sinden||Playstation | SNES | MAME | Dreamcast | Credits ;lite version
+Gui, main:Add, Tab3, w800 h600 Center, Sinden||Playstation | SNES | NES | MAME | Dreamcast | Credits ;lite version
 
 
 
@@ -275,8 +299,14 @@ if (update)
 	gui, main:font, norm	
 }
 
+gui, main:add, button, x34 y500 w80 h80 hwndIcon gPrevious, `n`n`n`n Previous Tab 
+GuiButtonIcon(Icon, A_Scriptdir "\lib\left.ico", 1,"w32 h32 b10")
+
+gui, main:add, button, x705 y500 w80 h80 hwndIcon gNext, `n`n`n`n Next Tab 
+GuiButtonIcon(Icon, A_Scriptdir "\lib\right.ico", 1,"w32 h32 b10")
+
 gui, main:font, cbfbfbf
-gui, main:add, text, x750 y575, v%current%
+gui, main:add, text, x760 y585, v%current%
 gui, main:font, norm
 
 ;Playstation 1 TAB -----------   Playstation 1 TAB -----------   Playstation 1 TAB -----------   Playstation 1 TAB -----------   Playstation 1 TAB -----------   
@@ -320,7 +350,7 @@ else
 
 Gui, main:Add, Button, x370 y250 w100 h20 gShortcutps1 vShortcutps1, Create Shortcut
 
-Gui, main:Add, Button, x520 y250 w100 h20 gPlayps1 vPlayps1 , Play
+Gui, main:Add, Button, x520 y250 w100 h40 gPlayps1 vPlayps1 , Play
 If FileExist(ps1emulocation) &&	 Instr(ps1emulocation, ".exe")
 {
 	GuiControl, main:Enable, Shortcutps1
@@ -352,6 +382,11 @@ Gui, main:add, picture, x215 y343 w381 h216 vbackgroundps1, %A_ScriptDir%\lib\1p
 Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewps1, %currentBezel%
 Gui, main:Add, Button, x680 y440 w100 h20 gChangeBezelps1 vChangeBezelps1, Change Bezel
 
+gui, main:add, button, x34 y500 w80 h80 hwndIcon gPrevious, `n`n`n`n Previous Tab 
+GuiButtonIcon(Icon, A_Scriptdir "\lib\left.ico", 1,"w32 h32 b10")
+
+gui, main:add, button, x705 y500 w80 h80 hwndIcon gNext, `n`n`n`n Next Tab 
+GuiButtonIcon(Icon, A_Scriptdir "\lib\right.ico", 1,"w32 h32 b10")
 
 ;SNES TAB -----------   SNES TAB -----------   SNES TAB -----------   SNES TAB -----------   SNES TAB -----------   
 Gui, main:Tab, 3
@@ -399,7 +434,7 @@ If FileExist(snesemulocation) &&	 Instr(snesemulocation, ".exe")
 else
 	GuiControl, main:Disable, snesconfigure
 Gui, main:Add, Button, x370 y250 w100 h20 gShortcutsnes vShortcutsnes, Create Shortcut
-Gui, main:Add, Button, x520 y250 w100 h20 gPlaysnes vPlaysnes, Play
+Gui, main:Add, Button, x520 y250 w100 h40 gPlaysnes vPlaysnes, Play
 If FileExist(snesemulocation) &&	 Instr(snesemulocation, ".exe")
 {
 	GuiControl, main:Enable, Shortcutsnes
@@ -433,9 +468,100 @@ Gui, main:add, picture, x215 y343 w381 h216 vbackgroundsnes, %A_ScriptDir%\lib\1
 Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewsnes, %currentBezel%
 Gui, main:Add, Button, x680 y440 w100 h20 gChangeBezelsnes vChangeBezelsnes, Change Bezel
 
+gui, main:add, button, x34 y500 w80 h80 hwndIcon gPrevious, `n`n`n`n Previous Tab 
+GuiButtonIcon(Icon, A_Scriptdir "\lib\left.ico", 1,"w32 h32 b10")
+
+gui, main:add, button, x705 y500 w80 h80 hwndIcon gNext, `n`n`n`n Next Tab 
+GuiButtonIcon(Icon, A_Scriptdir "\lib\right.ico", 1,"w32 h32 b10")
+
+;FAMICOM TAB -----------   FAMICOM TAB -----------   FAMICOM TAB -----------   FAMICOM TAB -----------   FAMICOM TAB -----------   
+Gui, main:Tab, 4
+Gui, main:Add, Picture, x735 y545 vDiskIconfc, %A_ScriptDir%\lib\disk.png
+GuiControl, main:hide, DiskIconfc
+Gui, main: font, bold
+if FileExist(a_scriptdir "\lib\" fcname ".ico")
+{
+	Gui, main:Add, picture, x40 y40 w64 h64 vfcico, %a_Scriptdir%\lib\%fcname%.ico
+	Gui, main:Add, Text, x22 y110 w100 h20 center, %fcname%
+}
+else
+	Gui, main:Add, Text, x30 y72 w150 h20 , %fcname%
+Gui, main: font
+Gui, main:Add, Button, x150 y70 w100 h20 gWizardfc, Installation Wizard
+Gui, main:Add, Text, x260 y72 w150 h20 , - or - 
+Gui, main:Add, Button, x290 y70 w100 h20 gDownfc , Manual Download
+Gui, main:Add, Button, x430 y70 w140 h20 gWikifc, %fcname% Sinden Wiki
+Gui, main:Add, Button, x610 y70 w140 h20 gVideofc, Video guide
+
+Gui, main:Add, Text, x70 y132 w150 h20 , Emulator Location
+Gui, main:Add, Edit, x180 y130 w490 h20 vfcemulocation gfcemulocation, %fcemulocation%
+Gui, main:Add, Button, x680 y130 w100 h20 gfcemulocationBrowse vfcemulocationBrowse, Browse
+
+Gui, main:Add, Text, x70 y162 w150 h20 , Emulator parameters
+Gui, main:Add, Edit, x180 y160 w490 h20 vfcparameters gfcparameters, %fcparameters%
+Gui, main:Add, Button, x680 y160 w100 h20 gfcparametersDefault , Default
+Gui, main:Add, Text, x70 y192 w150 h20 , Games Location
+Gui, main:Add, Edit, x180 y190 w490 h20 vfcgameslocation gfcgameslocation, %fcgameslocation%
+Gui, main:Add, Button, x680 y190 w100 h20 gfcgameslocationBrowser vfcgameslocationBrowser , Browse
+
+;game browser
+Gui, main:Add, Text, x70 y222 w150 h20 , Game Launcher
+Gui, main:Add, DropDownList, x180 y220 w490 r6 gfcgamelist vfcgamelist,
+getFolderFilelistfc(fcgameslocation,"fcgamelist")
+;selected game options
+
+
+Gui, main:add, text, x115 y254 w150 h20, Hide Mouse
+GuiControl, main:, fchidemouse, %fchidemouse% ; set the default/ ini value
+Gui, main:add, CheckBox, x180 y255 vfchidemouse gfchidemouse,
+Gui, main:add, Button, x220 y250 w100 h20 vfcconfigure gfcconfigure, Configure Emulator
+If FileExist(fcemulocation) &&	 Instr(fcemulocation, ".exe")
+	GuiControl, main:Enable, fcconfigure
+else
+	GuiControl, main:Disable, fcconfigure
+Gui, main:Add, Button, x370 y250 w100 h20 gShortcutfc vShortcutfc, Create Shortcut
+Gui, main:Add, Button, x520 y250 w100 h40 gPlayfc vPlayfc, Play
+If FileExist(fcemulocation) &&	 Instr(fcemulocation, ".exe")
+{
+	GuiControl, main:Enable, Shortcutfc
+	GuiControl, main:Enable, Playfc
+}
+else
+{
+	GuiControl, main:Disable, Shortcutfc
+	GuiControl, main:Disable, Playfc
+}
+
+;bezel preview
+Gui, main:Add, Text, x70 y302 w150 h20 , Bezels Location
+Gui, main:Add, Edit, x180 y300 w490 h20 vfcbezelslocation gfcbezelslocation, %fcbezelslocation%
+Gui, main:Add, Button, x680 y300 w100 h20 gfcbezelslocationBrowse vfcbezelslocationBrowse, Browse
+gui, main:submit, nohide
+Gui, main:Add, Text, x70 y442 w150 h20 , Bezel Preview
+Gui, main:add, text, x217 y570 w377 h20 center vfcbezelMessage, Game bezel not found - Using generic
+SplitPath, fcgamelist,,,,fcgamenoext
+if !FileExist(fcbezelslocation "\" fcgamenoext ".png")
+{ 
+	GuiControl, main:show, fcbezelMessage
+	currentBezel = %A_Scriptdir%\SindenBezels\%fcsystemname%\generic.png
+}
+else
+{
+	currentBezel = %fcbezelslocation%\%fcgamenoext%.png
+	GuiControl, main:hide, fcbezelMessage
+}
+Gui, main:add, picture, x215 y343 w381 h216 vbackgroundfc, %A_ScriptDir%\lib\1px.png
+Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewfc, %currentBezel%
+Gui, main:Add, Button, x680 y440 w100 h20 gChangeBezelfc vChangeBezelfc, Change Bezel
+
+gui, main:add, button, x34 y500 w80 h80 hwndIcon gPrevious, `n`n`n`n Previous Tab 
+GuiButtonIcon(Icon, A_Scriptdir "\lib\left.ico", 1,"w32 h32 b10")
+
+gui, main:add, button, x705 y500 w80 h80 hwndIcon gNext, `n`n`n`n Next Tab 
+GuiButtonIcon(Icon, A_Scriptdir "\lib\right.ico", 1,"w32 h32 b10")
 
 ;mame TAB -----------   mame TAB -----------   mame TAB -----------   mame TAB -----------   mame TAB -----------   
-Gui, main:Tab, 4
+Gui, main:Tab, 5
 Gui, main:Add, Picture, x735 y545 vDiskIconmame, %A_ScriptDir%\lib\disk.png
 GuiControl, main:hide, DiskIconmame
 Gui, main: font, bold
@@ -483,7 +609,7 @@ If FileExist(mameemulocation) &&	 Instr(mameemulocation, ".exe")
 else
 	GuiControl, main:Disable, mameconfigure
 Gui, main:Add, Button, x370 y250 w100 h20 gShortcutmame vShortcutmame, Create Shortcut
-Gui, main:Add, Button, x520 y250 w100 h20 gPlaymame vPlaymame , Play
+Gui, main:Add, Button, x520 y250 w100 h40 gPlaymame vPlaymame , Play
 If FileExist(mameemulocation) &&	 Instr(mameemulocation, ".exe")
 {
 	GuiControl, main:Enable, Shortcutmame
@@ -520,8 +646,15 @@ Gui, main:add, picture, x215 y343 w381 h216 vbackgroundmame, %A_ScriptDir%\lib\1
 Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewmame, %currentbezel%
 Gui, main:Add, Button, x680 y440 w100 h20 gChangeBezelmame vChangeBezelmame, Change Bezel
 
+gui, main:add, button, x34 y500 w80 h80 hwndIcon gPrevious, `n`n`n`n Previous Tab 
+GuiButtonIcon(Icon, A_Scriptdir "\lib\left.ico", 1,"w32 h32 b10")
+
+gui, main:add, button, x705 y500 w80 h80 hwndIcon gNext, `n`n`n`n Next Tab 
+GuiButtonIcon(Icon, A_Scriptdir "\lib\right.ico", 1,"w32 h32 b10")
+
+
 ;DC TAB -----------   DC TAB -----------   DC TAB -----------   DC TAB -----------   DC TAB -----------   
-Gui, main:Tab, 5
+Gui, main:Tab, 6
 Gui, main:Add, Picture, x735 y545 vDiskIcondc, %A_ScriptDir%\lib\disk.png
 GuiControl, main:hide, DiskIcondc
 Gui, main: font, bold
@@ -566,7 +699,7 @@ If FileExist(dcemulocation) &&	 Instr(dcemulocation, ".exe")
 else
 	GuiControl, main:Disable, dcconfigure
 Gui, main:Add, Button, x370 y250 w100 h20 gShortcutdc vShortcutdc, Create Shortcut
-Gui, main:Add, Button, x520 y250 w100 h20 gPlaydc vPlaydc, Play
+Gui, main:Add, Button, x520 y250 w100 h40 gPlaydc vPlaydc, Play
 If FileExist(dcemulocation) &&	 Instr(dcemulocation, ".exe")
 {
 	GuiControl, main:Enable, Shortcutdc
@@ -606,9 +739,14 @@ Gui, main:add, text, x217 y350 w377 h40 center vdcbezelMessage, %dcname% uses Re
 ;~ Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewdc, %A_ScriptDir%\SindenBezels\%dcsystemname%\%currentBezel%.png
 ;~ Gui, main:Add, Button, x680 y440 w100 h20 gChangeBezeldc vChangeBezeldc, Change Bezel
 
+gui, main:add, button, x34 y500 w80 h80 hwndIcon gPrevious, `n`n`n`n Previous Tab 
+GuiButtonIcon(Icon, A_Scriptdir "\lib\left.ico", 1,"w32 h32 b10")
+
+gui, main:add, button, x705 y500 w80 h80 hwndIcon gNext, `n`n`n`n Next Tab 
+GuiButtonIcon(Icon, A_Scriptdir "\lib\right.ico", 1,"w32 h32 b10")
 
 ; CREDITS TAB----------------------------------------------------------------------------------------------------------------------------------
-Gui, main:Tab, 6
+Gui, main:Tab, 7
 gui, main:font, s10
 gui, main:font, bold
 Gui, main:Add, Text, x40 y40 w800, Credits:
@@ -628,6 +766,12 @@ Gui, main:add, text, ,
 Gui, main:Add, Link,, Snes9x: Snes9x Team. <a href="https://www.snes9x.com/">Snes9x.com</a>
 
 Gui, main:font
+
+gui, main:add, button, x34 y500 w80 h80 hwndIcon gPrevious, `n`n`n`n Previous Tab 
+GuiButtonIcon(Icon, A_Scriptdir "\lib\left.ico", 1,"w32 h32 b10")
+
+gui, main:add, button, x705 y500 w80 h80 hwndIcon gNext, `n`n`n`n Next Tab 
+GuiButtonIcon(Icon, A_Scriptdir "\lib\right.ico", 1,"w32 h32 b10")
 
 
 ; add extra tabs before this-----------------------------------------------------------
@@ -1018,7 +1162,7 @@ SplitPath, snesgamelist,,,,snesgamenoext
 if !FileExist(snesbezelslocation "\" snesgamenoext ".png")
 	currentBezel = %A_ScriptDir%\SindenBezels\%snessystemname%\generic.png
 else
-	currentBezel = %ps1bezelslocation%\%snesgamenoext%.png
+	currentBezel = %snesbezelslocation%\%snesgamenoext%.png
 run, `"%snesemulocation%`"  %snesparameters% `"%snesgameslocation%\%snesgamelist%`"  , %snesemufolder%
 Sleep 1000
 if(sneshidemouse=1)
@@ -1034,7 +1178,7 @@ IfWinNotExist, frame
 	Gui, 88:-Toolwindow
 	Gui, 88: +LastFound +AlwaysOnTop -Caption +ToolWindow  ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
 	Gui, 88: Color, %CustomColor%
-	Gui, 88: Add, Picture, x0 y0 w%m1right% h%m1Bottom% BackGroundTrans, %currentBezel%.png
+	Gui, 88: Add, Picture, x0 y0 w%m1right% h%m1Bottom% BackGroundTrans, %currentBezel%
 	WinSet, Style, -0xC40000, A
 	WinSet, TransColor, %CustomColor% ;150	; Make all pixels of this color transparent and make the text itself translucent (150)
 	Gui, 88: Show, x0 y0 w%m1right% h%m1Bottom%, NoActivate, frame ; NoActivate avoids deactivating the currently active window.
@@ -1091,6 +1235,245 @@ if (Errorlevel = 0)
 
 }
 return
+
+; FAMICOM Buttons   ---------    FAMICOM Buttons   ---------    FAMICOM Buttons   ---------    FAMICOM Buttons   ---------    FAMICOM Buttons   ---------   
+
+Wizardfc: ;-------  fc wizard  -------  fc wizard  -------  fc wizard  -------  fc wizard  -------  fc wizard  -------  fc wizard  
+fcemulocation := emudownloader(fcname,latestfc,fcsize,fcdocs)"\mesen.exe"
+GuiControl, main:, fcemulocation, %fcemulocation%
+sleep 200
+SplitPath, fcemulocation ,, fcemufolder
+run, %fcemulocation%, %fcemufolder% ,, mesenPID
+WinWaitActive, ahk_exe Mesen.exe , , 5
+WinActivate, ahk_exe Mesen.exe
+sleep 50				
+send {TAB 4}			 
+sleep 100
+send {DOWN}
+sleep 100
+send {TAB 2}
+sleep 100
+send {space}
+sleep 100
+send +{tab}
+sleep 100
+send {space}
+sleep 400
+WinWaitActive, ahk_exe Mesen.exe , , 5
+WinActivate, ahk_exe Mesen.exe
+process, close, %mesenPID%
+
+FileCopy, %A_scriptdir%\other\%fcsystemname%\*.*, %fcemufolder%\ , 1
+Gui, main:Submit, NoHide
+iniwrite, %fcemulocation%, sdlauncher.ini, fc, fcemulocation
+
+return
+;-------  fc wizard END  -------  fc wizard END -------  fc wizard END -------  fc wizard END  -------  fc wizard END -------  fc wizard  END 
+
+Downfc: ;manual download
+Gui, Submit, NoHide
+MsgBox, 8257, Download from the official github, 1- On the browser window you will find the `"Latest release`"`n`n2- Find where it says `" ▷ Assets`" and click it to expand the file list.`n`n3- Click on `"Mesenx64.zip`" to download the file
+IfMsgBox, OK
+	run, %fcmanualdownload%
+return
+Wikifc:
+Gui, Submit, NoHide
+	run, %fcwiki%
+return
+Videofc:
+Gui, Submit, NoHide
+	run, %fcvideo%
+return
+
+fcemulocation:
+Gui, main:Submit, NoHide
+iniwrite, %fcemulocation%, sdlauncher.ini, fc, fcemulocation
+If FileExist(fcemulocation) &&	 Instr(fcemulocation, ".exe")
+{
+	GuiControl, main:Enable, Shortcutfc
+	GuiControl, main:Enable, Playfc
+	GuiControl, main:Enable, fcconfigure
+}
+else
+{
+	GuiControl, main:Disable, Shortcutfc
+	GuiControl, main:Disable, Playfc
+	GuiControl, main:Disable, fcconfigure
+}
+gosub Save
+return
+fcemulocationBrowse: ; Browse for duckstation exe
+FileSelectFile, fcemulocation, S3,%fcemulocation%, Select the emulator executable, Mesen (mesen.exe)
+if (Errorlevel = 0)
+	GuiControl, main:, fcemulocation, %fcemulocation%
+If FileExist(fcemulocation) &&	 Instr(fcemulocation, ".exe")
+{
+	GuiControl, main:Enable, Shortcutfc
+	GuiControl, main:Enable, Playfc
+	GuiControl, main:Disable, fcconfigure
+}
+else
+{
+	GuiControl, main:Disable, Shortcutfc
+	GuiControl, main:Disable, Playfc
+	GuiControl, main:Disable, fcconfigure
+}
+Gui, main:Submit, NoHide
+iniwrite, %fcemulocation%, sdlauncher.ini, fc, fcemulocation
+gosub Save
+return
+
+
+fcparameters:
+Gui, main:Submit, NoHide
+iniwrite, %fcparameters%, sdlauncher.ini, fc, fcparameters
+gosub Save
+return
+fcparametersDefault: ; Default parameters for Duckstation
+GuiControl, main:, fcparameters, -fullscreen -port2 superscope
+Gui, main:Submit, NoHide
+iniwrite, %fcparameters%, sdlauncher.ini, fc, fcparameters
+gosub Save
+return
+
+
+fcbezelslocation:
+Gui, main:Submit, NoHide
+iniwrite, %fcbezelslocation%, sdlauncher.ini, fc, fcbezelslocation
+gosub fcgamelist
+return
+fcbezelslocationBrowse: ; Browse for fc bezel folder
+FileSelectFolder, fcbezelslocation, *%fcbezelslocation%, 3, Select your %fcsystemname% bezel folder
+if (Errorlevel = 0)
+	GuiControl, main:, fcbezelslocation, %fcbezelslocation%
+Gui, main:Submit, NoHide
+iniwrite, %fcbezelslocation%, sdlauncher.ini, fc, fcbezelslocation
+gosub fcgamelist
+return
+
+fchidemouse: ; Default parameters for Duckstation
+Gui, main:Submit, NoHide
+iniwrite, %fchidemouse%, sdlauncher.ini, fc, fchidemouse
+gosub Save
+return
+
+fcconfigure:
+run, `"%fcemulocation%`", %fcemufolder%
+return
+ 
+ 
+fcgameslocation:
+Gui, main:Submit, NoHide
+getFolderFilelistfc(fcgameslocation,"fcgamelist")
+Gui, main:Submit, NoHide
+gosub fcgamelist
+return
+fcgameslocationBrowser:
+FileSelectFolder, fcgameslocation, *%fcgameslocation%, 3, Select your %fcsystemname% games folder
+if (Errorlevel = 0)
+{
+	GuiControl, main:, fcgameslocation, %fcgameslocation%
+	getFolderFilelistfc(fcgameslocation,"fcgamelist")
+}
+Gui, main:Submit, NoHide
+iniwrite, %fcgameslocation%, sdlauncher.ini, fc, fcgameslocation
+gosub fcgamelist
+return
+
+
+Playfc:
+if (A_ScreenDPI>96)
+{
+	MsgBox, 4148, Display scaling is ON, The launcher has noticed that your display scaling is higher than 100`% `nThis can cause issues with bezels`, tracking and emulators.`nIt is recommended that you change this to 100`% before running games.`n`nDo you want to continue?
+	IfMsgBox, No
+	{
+		MsgBox, 36, Display scaling is ON, Do you know how to change the display scaling back to 100`% ?
+			IfMsgBox, No
+				run, https://www.windowscentral.com/how-set-custom-display-scaling-setting-windows-10#change_display_scaling_default_settings_windows10
+	return
+	}
+}
+playingfc = 1
+SysGet, m1, Monitor, 1
+LeftPixel := Floor((m1right - ((m1bottom/7)*8))/2)
+RightPixel := Floor(m1right - LeftPixel)
+SplitPath, fcgamelist,,,,fcgamenoext
+if !FileExist(fcbezelslocation "\" fcgamenoext ".png")
+	currentBezel = %A_ScriptDir%\SindenBezels\%fcsystemname%\generic.png
+else
+	currentBezel = %fcbezelslocation%\%fcgamenoext%.png
+run, `"%fcemulocation%`"  %fcparameters% `"%fcgameslocation%\%fcgamelist%`"  , %fcemufolder%
+Sleep 1000
+if(fchidemouse=1)
+	hidecursor()
+sleep 300
+IfWinNotExist, frame
+{
+	SysGet, m1, Monitor, 1
+	CustomColor = 000000f  ; Can be any RGB color (it will be made transparent below).
+	Gui, 88:+Toolwindow
+	Gui, 88:+0x94C80000
+	Gui, 88:+E0x20 ; this makes this GUI clickthrough
+	Gui, 88:-Toolwindow
+	Gui, 88: +LastFound +AlwaysOnTop -Caption +ToolWindow  ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+	Gui, 88: Color, %CustomColor%
+	Gui, 88: Add, Picture, x0 y0 w%m1right% h%m1Bottom% BackGroundTrans, %currentBezel%
+	WinSet, Style, -0xC40000, A
+	WinSet, TransColor, %CustomColor% ;150	; Make all pixels of this color transparent and make the text itself translucent (150)
+	Gui, 88: Show, x0 y0 w%m1right% h%m1Bottom%, NoActivate, frame ; NoActivate avoids deactivating the currently active window.
+	Gui, 88: Show, x0 y0 w%m1right% h%m1Bottom%, NoActivate, frame ; NoActivate avoids deactivating the currently active window.
+	WinHide, ahk_class Shell_TrayWnd
+	WinHide, ahk_class Shell_SecondaryTrayWnd
+
+}
+return
+
+fcgamelist:
+gui, main:submit, nohide
+SplitPath, fcgamelist,,,,fcgamenoext
+if !FileExist(fcbezelslocation "\" fcgamenoext ".png")
+{
+	currentBezel = %A_ScriptDir%\SindenBezels\%fcsystemname%\generic.png
+	GuiControl, main:show, fcbezelMessage
+	GuiControl, main:, bezelPreviewfc, %currentBezel%
+}
+else
+{
+	currentBezel = %fcbezelslocation%\%fcgamenoext%.png
+	GuiControl, main:hide, fcbezelMessage
+	GuiControl, main:, bezelPreviewfc, %currentBezel%
+}
+gosub Save
+return
+
+Shortcutfc:
+FileSelectFolder, shortcutLocation, *%A_Desktop%, 3, Select a folder to save the game shortcut
+SplitPath, fcgamelist,,,,fcgamenoext
+FileCreateShortcut, %A_ScriptFullPath%, %shortcutLocation%\%fcgamenoext%.lnk,  "%A_Scriptdir%", fc "%fcgameslocation%\%fcgamelist%", Run %fcgamenoext% with Sinden Bezels, %A_ScriptDir%\lib\Lightgun_BLACK.ico
+run, explorer.exe %shortcutLocation%
+return
+
+ChangeBezelfc:
+SplitPath, fcgamelist,,,,fcgamenoext
+Fileselectfile, newBezel, S3, %fcbezelslocation%\%fcgamenoext%.png, Select new bezel file for %fcgamenoext%, Pictures (*.png)
+if (Errorlevel = 0)
+{
+	if fileexist(fcbezelslocation "\" fcgamenoext ".png") ; make a backup of the existing bezel, if any
+	{
+		FormatTime, timestamp,, yyMMddHHmmss
+		if !fileexist(fcbezelslocation "\backup")
+			filecreatedir, %fcbezelslocation%\backup
+		FileCopy, %fcbezelslocation%\%fcgamenoext%.png,  %fcbezelslocation%\backup\backup_%timestamp%_%fcgamenoext%.png
+	}
+	FileCopy, %newBezel%, %fcbezelslocation%\%fcgamenoext%.png, 1
+	currentBezel = %fcbezelslocation%\%fcgamenoext%.png
+	GuiControl, main:, bezelPreviewfc, %currentBezel%
+	GuiControl, main:hide, bezelMessage
+
+}
+return
+
+
 
 
 ; dc Buttons   ---------    dc Buttons   ---------    dc Buttons   ---------    dc Buttons   ---------    dc Buttons   ---------   
@@ -1974,6 +2357,24 @@ getFolderFilelistsnes(FolderPath,guiVariable)
 
 }
 
+getFolderFilelistfc(FolderPath,guiVariable)
+{
+
+	List = 
+	loop, Files, % FolderPath "\*.*"
+		{
+			SplitPath, A_LoopFileName, Filename,,FileExtension
+			if(FileExtension="zip" or FileExtension="nes" or FileExtension="fc" or FileExtension="bin")
+				List .= FileName "|"
+		}
+	List := RTrim(List, "|")
+	List := StrReplace(List, "|", "||",, 1) ; make first item default
+	GuiControl,main:, %guiVariable%, |
+	GuiControl,main:, %guiVariable%, %List%
+	SplitPath, fcgamelist,,,,fcgamenoext
+
+}
+
 getFolderFilelistmame(FolderPath,guiVariable)
 {
 
@@ -2017,6 +2418,29 @@ getFolderFilelistdc(FolderPath,guiVariable)
 }
 
 
+GuiButtonIcon(Handle, File, Index := 1, Options := "")
+{
+	RegExMatch(Options, "i)w\K\d+", W), (W="") ? W := 16 :
+	RegExMatch(Options, "i)h\K\d+", H), (H="") ? H := 16 :
+	RegExMatch(Options, "i)s\K\d+", S), S ? W := H := S :
+	RegExMatch(Options, "i)l\K\d+", L), (L="") ? L := 0 :
+	RegExMatch(Options, "i)t\K\d+", T), (T="") ? T := 0 :
+	RegExMatch(Options, "i)r\K\d+", R), (R="") ? R := 0 :
+	RegExMatch(Options, "i)b\K\d+", B), (B="") ? B := 0 :
+	RegExMatch(Options, "i)a\K\d+", A), (A="") ? A := 4 :
+	Psz := A_PtrSize = "" ? 4 : A_PtrSize, DW := "UInt", Ptr := A_PtrSize = "" ? DW : "Ptr"
+	VarSetCapacity( button_il, 20 + Psz, 0 )
+	NumPut( normal_il := DllCall( "ImageList_Create", DW, W, DW, H, DW, 0x21, DW, 1, DW, 1 ), button_il, 0, Ptr )	; Width & Height
+	NumPut( L, button_il, 0 + Psz, DW )		; Left Margin
+	NumPut( T, button_il, 4 + Psz, DW )		; Top Margin
+	NumPut( R, button_il, 8 + Psz, DW )		; Right Margin
+	NumPut( B, button_il, 12 + Psz, DW )	; Bottom Margin	
+	NumPut( A, button_il, 16 + Psz, DW )	; Alignment
+	SendMessage, BCM_SETIMAGELIST := 5634, 0, &button_il,, AHK_ID %Handle%
+	return IL_Add( normal_il, File, Index )
+}
+
+
 mainGuiClose:
 FileRemoveDir, %A_ScriptDir%\temp, 1
 ;[general]
@@ -2040,6 +2464,13 @@ IniWrite, %snesbezelslocation%, sdlauncher.ini, snes, snesbezelsLocation
 IniWrite, %snesgameslocation%, sdlauncher.ini, snes, snesgameslocation
 IniWrite, %sneshidemouse%, sdlauncher.ini, snes, sneshidemouse
 
+;[fc]
+IniWrite, %fcemulocation%, sdlauncher.ini, fc, fcemulocation
+IniWrite, %fcparameters%, sdlauncher.ini, fc, fcparameters
+IniWrite, %fcbezelslocation%, sdlauncher.ini, fc, fcbezelsLocation
+IniWrite, %fcgameslocation%, sdlauncher.ini, fc, fcgameslocation
+IniWrite, %fchidemouse%, sdlauncher.ini, fc, fchidemouse
+
 ;[mame]
 IniWrite, %mameemulocation%, sdlauncher.ini, mame, mameemulocation
 IniWrite, %mameparameters%, sdlauncher.ini, mame, mameparameters
@@ -2062,6 +2493,14 @@ if FileExist(ps1emufolder "\settings.ini")
 }
 
 ExitApp
+
+Previous:
+send +^{TAB}
+return
+
+Next:
+send ^{TAB}
+return
 
 updater:
 run, SDUpdater.exe, UseErrorLevel
@@ -2116,6 +2555,22 @@ WinShow, ahk_class Shell_SecondaryTrayWnd
 gui, 88:destroy
 playingsnes = 0
 Run,taskkill /im "snes9x.exe" /F
+if (numParams = 0)
+	gui, main: show
+else
+	ExitApp
+#If
+
+#If (playingfc)
+$Esc::
+showcursor()
+Process,Close,fc9x
+Run,taskkill /im "mesen.exe" /F
+WinShow, ahk_class Shell_TrayWnd
+WinShow, ahk_class Shell_SecondaryTrayWnd
+gui, 88:destroy
+playingfc = 0
+Run,taskkill /im "mesen.exe" /F
 if (numParams = 0)
 	gui, main: show
 else
