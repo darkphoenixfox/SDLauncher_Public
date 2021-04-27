@@ -340,16 +340,16 @@ Gui, main:add, text, x217 y570 w377 h20 center vps1bezelMessage, Game bezel not 
 SplitPath, ps1gamelist,,,,ps1gamenoext
 if !FileExist(ps1bezelslocation "\" ps1gamenoext ".png")
 { 
-	currentBezel = generic
 	GuiControl, main:show, ps1bezelMessage
+	currentBezel = %A_Scriptdir%\SindenBezels\%ps1systemname%\generic.png
 }
 else
 {
-	currentBezel = %ps1gamenoext%
+	currentBezel = %ps1bezelslocation%\%ps1gamenoext%.png
 	GuiControl, main:hide, ps1bezelMessage
 }
 Gui, main:add, picture, x215 y343 w381 h216 vbackgroundps1, %A_ScriptDir%\lib\1px.png
-Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewps1, %A_ScriptDir%\SindenBezels\%ps1systemname%\%currentBezel%.png
+Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewps1, %currentBezel%
 Gui, main:Add, Button, x680 y440 w100 h20 gChangeBezelps1 vChangeBezelps1, Change Bezel
 
 
@@ -421,16 +421,16 @@ Gui, main:add, text, x217 y570 w377 h20 center vsnesbezelMessage, Game bezel not
 SplitPath, snesgamelist,,,,snesgamenoext
 if !FileExist(snesbezelslocation "\" snesgamenoext ".png")
 { 
-	currentBezel = generic
 	GuiControl, main:show, snesbezelMessage
+	currentBezel = %A_Scriptdir%\SindenBezels\%snessystemname%\generic.png
 }
 else
 {
-	currentBezel = %snesgamenoext%
+	currentBezel = %snesbezelslocation%\%snesgamenoext%.png
 	GuiControl, main:hide, snesbezelMessage
 }
 Gui, main:add, picture, x215 y343 w381 h216 vbackgroundsnes, %A_ScriptDir%\lib\1px.png
-Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewsnes, %A_ScriptDir%\SindenBezels\%snessystemname%\%currentBezel%.png
+Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewsnes, %currentBezel%
 Gui, main:Add, Button, x680 y440 w100 h20 gChangeBezelsnes vChangeBezelsnes, Change Bezel
 
 
@@ -503,18 +503,21 @@ gui, main:submit, nohide
 Gui, main:Add, Text, x70 y442 w150 h20 , Bezel Preview
 Gui, main:add, text, x217 y570 w377 h20 center vmamebezelMessage, Game bezel not found - Using generic
 mamegamenoext := SubStr(mamegamelist,1,InStr(mamegamelist, "-") - 2)
-if !FileExist(mamebezelslocation "\" mamegamenoext "\BezelStandard.png")
+if !FileExist(mamebezelslocation "\" mamegamenoext "\BezelStandard.png") && !FileExist(mamebezelslocation "\" mamegamenoext "\BezelStandard1.png")
 { 
-	currentBezel = default
+	currentBezel = %A_ScriptDir%\SindenBezels\%mamesystemname%\default\BezelStandard.png
 	GuiControl, main:show, mamebezelMessage
 }
 else
 {
-	currentBezel = %mamegamenoext%
+	if FileExist(mamebezelslocation "\" mamegamenoext "\BezelStandard.png")
+		currentBezel = %mamebezelslocation%\%mamegamenoext%\BezelStandard.png
+	else
+		currentBezel = %mamebezelslocation%\%mamegamenoext%\BezelStandard1.png
 	GuiControl, main:hide, mamebezelMessage
 }
 Gui, main:add, picture, x215 y343 w381 h216 vbackgroundmame, %A_ScriptDir%\lib\1px.png
-Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewmame, %mamebezelslocation%\%currentbezel%\BezelStandard.png
+Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewmame, %currentbezel%
 Gui, main:Add, Button, x680 y440 w100 h20 gChangeBezelmame vChangeBezelmame, Change Bezel
 
 ;DC TAB -----------   DC TAB -----------   DC TAB -----------   DC TAB -----------   DC TAB -----------   
@@ -728,7 +731,7 @@ return
 ps1bezelslocation:
 Gui, main:Submit, NoHide
 iniwrite, %ps1bezelslocation%, sdlauncher.ini, ps1, ps1bezelslocation
-gosub Save
+gosub ps1gamelist
 return
 ps1bezelslocationBrowse: ; Browse for ps1 bezel folder
 FileSelectFolder, ps1bezelslocation, *%ps1bezelslocation%, 3, Select your %ps1systemname% bezel folder
@@ -736,7 +739,7 @@ if (Errorlevel = 0)
 	GuiControl, main:, ps1bezelslocation, %ps1bezelslocation%
 Gui, main:Submit, NoHide
 iniwrite, %ps1bezelslocation%, sdlauncher.ini, ps1, ps1bezelslocation
-gosub Save
+gosub ps1gamelist
 return
 
 ps1hidemouse: ; Default parameters for Duckstation
@@ -759,7 +762,7 @@ if FileExist(ps1emufolder "\settings.ini")
 {
 	iniwrite, %ps1gameslocation%, %ps1emufolder%\settings.ini, GameList, Paths
 }
-gosub Save
+gosub ps1gamelist
 return
 ps1gameslocationBrowser:
 FileSelectFolder, ps1gameslocation, *%ps1gameslocation%, 3, Select your %ps1systemname% games folder
@@ -774,7 +777,7 @@ if FileExist(ps1emufolder "\settings.ini")
 {
 	iniwrite, %ps1gameslocation%, %ps1emufolder%\settings.ini, GameList, Paths
 }
-gosub Save
+gosub ps1gamelist
 return
 
 
@@ -794,9 +797,9 @@ if (A_ScreenDPI>96)
 playingps1 = 1
 SplitPath, ps1gamelist,,,,ps1gamenoext
 if !FileExist(ps1bezelslocation "\" ps1gamenoext ".png")
-	currentBezel = generic
+	currentBezel = %A_ScriptDir%\SindenBezels\%ps1systemname%\generic.png
 else
-	currentBezel = %ps1gamenoext%
+	currentBezel = %ps1bezelslocation%\%ps1gamenoext%.png
 run, `"%ps1emulocation%`"  %ps1parameters% `"%ps1gameslocation%\%ps1gamelist%`"  , %ps1emufolder%
 Sleep 1000
 if(ps1hidemouse=1)
@@ -827,15 +830,16 @@ gui, main:submit, nohide
 SplitPath, ps1gamelist,,,,ps1gamenoext
 if !FileExist(ps1bezelslocation "\" ps1gamenoext ".png")
 {
-	currentBezel = generic
+	currentBezel = %A_ScriptDir%\SindenBezels\%ps1systemname%\generic.png
 	GuiControl, main:show, ps1bezelMessage
+	GuiControl, main:, bezelPreviewps1, %currentBezel%
 }
 else
 {
-	currentBezel = %ps1gamenoext%
+	currentBezel = %ps1bezelslocation%\%ps1gamenoext%.png
 	GuiControl, main:hide, ps1bezelMessage
+	GuiControl, main:, bezelPreviewps1, %currentBezel%
 }
-GuiControl, main:, bezelPreviewps1, %A_ScriptDir%\SindenBezels\%ps1systemname%\%currentBezel%.png
 gosub Save
 return
 
@@ -859,8 +863,8 @@ if (Errorlevel = 0)
 		FileCopy, %ps1bezelslocation%\%ps1gamenoext%.png,  %ps1bezelslocation%\backup\backup_%timestamp%_%ps1gamenoext%.png
 	}
 	FileCopy, %newBezel%, %ps1bezelslocation%\%ps1gamenoext%.png, 1
-	currentBezel = %ps1gamenoext%
-	GuiControl, main:, bezelPreviewps1, %A_ScriptDir%\SindenBezels\%ps1systemname%\%currentBezel%.png
+	currentBezel = %ps1bezelslocation%\%ps1gamenoext%.png
+	GuiControl, main:, bezelPreviewps1, %currentBezel%
 	GuiControl, main:hide, bezelMessage
 
 }
@@ -953,7 +957,7 @@ return
 snesbezelslocation:
 Gui, main:Submit, NoHide
 iniwrite, %snesbezelslocation%, sdlauncher.ini, snes, snesbezelslocation
-gosub Save
+gosub snesgamelist
 return
 snesbezelslocationBrowse: ; Browse for snes bezel folder
 FileSelectFolder, snesbezelslocation, *%snesbezelslocation%, 3, Select your %snessystemname% bezel folder
@@ -961,7 +965,7 @@ if (Errorlevel = 0)
 	GuiControl, main:, snesbezelslocation, %snesbezelslocation%
 Gui, main:Submit, NoHide
 iniwrite, %snesbezelslocation%, sdlauncher.ini, snes, snesbezelslocation
-gosub Save
+gosub snesgamelist
 return
 
 sneshidemouse: ; Default parameters for Duckstation
@@ -979,7 +983,7 @@ snesgameslocation:
 Gui, main:Submit, NoHide
 getFolderFilelistsnes(snesgameslocation,"snesgamelist")
 Gui, main:Submit, NoHide
-gosub Save
+gosub snesgamelist
 return
 snesgameslocationBrowser:
 FileSelectFolder, snesgameslocation, *%snesgameslocation%, 3, Select your %snessystemname% games folder
@@ -990,7 +994,7 @@ if (Errorlevel = 0)
 }
 Gui, main:Submit, NoHide
 iniwrite, %snesgameslocation%, sdlauncher.ini, snes, snesgameslocation
-gosub Save
+gosub snesgamelist
 return
 
 
@@ -1012,9 +1016,9 @@ LeftPixel := Floor((m1right - ((m1bottom/7)*8))/2)
 RightPixel := Floor(m1right - LeftPixel)
 SplitPath, snesgamelist,,,,snesgamenoext
 if !FileExist(snesbezelslocation "\" snesgamenoext ".png")
-	currentBezel = generic
+	currentBezel = %A_ScriptDir%\SindenBezels\%snessystemname%\generic.png
 else
-	currentBezel = %snesgamenoext%
+	currentBezel = %ps1bezelslocation%\%snesgamenoext%.png
 run, `"%snesemulocation%`"  %snesparameters% `"%snesgameslocation%\%snesgamelist%`"  , %snesemufolder%
 Sleep 1000
 if(sneshidemouse=1)
@@ -1030,7 +1034,7 @@ IfWinNotExist, frame
 	Gui, 88:-Toolwindow
 	Gui, 88: +LastFound +AlwaysOnTop -Caption +ToolWindow  ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
 	Gui, 88: Color, %CustomColor%
-	Gui, 88: Add, Picture, x0 y0 w%m1right% h%m1Bottom% BackGroundTrans, %snesbezelslocation%\%currentBezel%.png
+	Gui, 88: Add, Picture, x0 y0 w%m1right% h%m1Bottom% BackGroundTrans, %currentBezel%.png
 	WinSet, Style, -0xC40000, A
 	WinSet, TransColor, %CustomColor% ;150	; Make all pixels of this color transparent and make the text itself translucent (150)
 	Gui, 88: Show, x0 y0 w%m1right% h%m1Bottom%, NoActivate, frame ; NoActivate avoids deactivating the currently active window.
@@ -1048,15 +1052,16 @@ gui, main:submit, nohide
 SplitPath, snesgamelist,,,,snesgamenoext
 if !FileExist(snesbezelslocation "\" snesgamenoext ".png")
 {
-	currentBezel = generic
+	currentBezel = %A_ScriptDir%\SindenBezels\%snessystemname%\generic.png
 	GuiControl, main:show, snesbezelMessage
+	GuiControl, main:, bezelPreviewsnes, %currentBezel%
 }
 else
 {
-	currentBezel = %snesgamenoext%
+	currentBezel = %snesbezelslocation%\%snesgamenoext%.png
 	GuiControl, main:hide, snesbezelMessage
+	GuiControl, main:, bezelPreviewsnes, %currentBezel%
 }
-GuiControl, main:, bezelPreviewsnes, %A_ScriptDir%\SindenBezels\%snessystemname%\%currentBezel%.png
 gosub Save
 return
 
@@ -1080,8 +1085,8 @@ if (Errorlevel = 0)
 		FileCopy, %snesbezelslocation%\%snesgamenoext%.png,  %snesbezelslocation%\backup\backup_%timestamp%_%snesgamenoext%.png
 	}
 	FileCopy, %newBezel%, %snesbezelslocation%\%snesgamenoext%.png, 1
-	currentBezel = %snesgamenoext%
-	GuiControl, main:, bezelPreviewsnes, %A_ScriptDir%\SindenBezels\%snessystemname%\%currentBezel%.png
+	currentBezel = %snesbezelslocation%\%snesgamenoext%.png
+	GuiControl, main:, bezelPreviewsnes, %currentBezel%
 	GuiControl, main:hide, bezelMessage
 
 }
@@ -1382,7 +1387,7 @@ else
 filecopy,  %mameemufolder%\temp.ini, %mameemufolder%\mame.ini ,1 
 sleep 100
 FileDelete, %mameemufolder%\temp.ini
-gosub Save
+gosub mamegamelist
 return
 mamebezelslocationBrowse: ; Browse for mame bezel folder
 FileSelectFolder, mamebezelslocation, *%mameemufolder%\artwork, 3, Select your %mamesystemname% artwork folder
@@ -1400,7 +1405,7 @@ else
 filecopy,  %mameemufolder%\temp.ini, %mameemufolder%\mame.ini ,1 
 sleep 100
 FileDelete, %mameemufolder%\temp.ini
-gosub Save
+gosub mamegamelist
 return
 
 mamehidemouse: 
@@ -1428,7 +1433,7 @@ else
 filecopy,  %mameemufolder%\temp.ini, %mameemufolder%\mame.ini ,1 
 sleep 100
 FileDelete, %mameemufolder%\temp.ini
-gosub Save
+gosub mamegamelist
 return
 mamegameslocationBrowser:
 FileSelectFolder, mamegameslocation, *%mamegameslocation%, 3, Select your %mamesystemname% games folder
@@ -1449,7 +1454,7 @@ else
 filecopy,  %mameemufolder%\temp.ini, %mameemufolder%\mame.ini , 1
 sleep 100
 FileDelete, %mameemufolder%\temp.ini
-gosub Save
+gosub mamegamelist
 return
 
 
@@ -1479,18 +1484,24 @@ gui, main:submit, nohide
 mamegamenoext := SubStr(mamegamelist,1,InStr(mamegamelist, "-") - 2)
 if !FileExist(mamebezelslocation "\" mamegamenoext "\BezelStandard.png") && !FileExist(mamebezelslocation "\" mamegamenoext "\BezelStandard1.png")
 {
-	currentBezel = default
+	currentBezel = %A_ScriptDir%\SindenBezels\%mamesystemname%\default\BezelStandard.png
 	GuiControl, main:show, mamebezelMessage
+	GuiControl, main:, bezelPreviewmame, %currentBezel%
 }
 else
 {
-	currentBezel = %mamegamenoext%
+	if FileExist(mamebezelslocation "\" mamegamenoext "\BezelStandard.png")
+	{
+		currentBezel = %mamebezelslocation%\%mamegamenoext%\BezelStandard.png
+		GuiControl, main:, bezelPreviewmame, %currentBezel%
+	}
+	else
+	{
+		currentBezel = %mamebezelslocation%\%mamegamenoext%\BezelStandard1.png
+		GuiControl, main:, bezelPreviewmame, %currentBezel%
+	}
 	GuiControl, main:hide, mamebezelMessage
 }
-if FileExist(mamebezelslocation "\" mamegamenoext "\BezelStandard1.png")
-	GuiControl, main:, bezelPreviewmame, %mamebezelslocation%\%currentbezel%\BezelStandard1.png
-if FileExist(mamebezelslocation "\" mamegamenoext "\BezelStandard.png")
-	GuiControl, main:, bezelPreviewmame, %mamebezelslocation%\%currentbezel%\BezelStandard.png
 gosub Save
 return
 
