@@ -820,9 +820,15 @@ getFolderFilelistmtwo(mtwogameslocation,"mtwogamelist")
 Gui, main:add, Button, x180 y250 w120 h20 vmtwodemulshooter gmtwodemulshooter, Config. Demulshooter
 Gui, main:add, Button, x320 y250 w100 h20 vmtwoconfigure gmtwoconfigure, Configure Emulator
 If FileExist(mtwoemulocation) &&	 Instr(mtwoemulocation, ".exe")
+{
 	GuiControl, main:Enable, mtwoconfigure
+	GuiControl, main:Enable, mtwodemulshooter
+}
 else
+{
+	GuiControl, main:Disable, mtwodemulshooter
 	GuiControl, main:Disable, mtwoconfigure
+}
 Gui, main:Add, Button, x440 y250 w100 h20 gShortcutmtwo vShortcutmtwo, Create Shortcut
 Gui, main:Add, Button, x560 y250 w100 h40 gPlaymtwo vPlaymtwo, Play
 If FileExist(mtwoemulocation) &&	 Instr(mtwoemulocation, ".exe")
@@ -832,6 +838,7 @@ If FileExist(mtwoemulocation) &&	 Instr(mtwoemulocation, ".exe")
 }
 else
 {
+
 	GuiControl, main:Disable, Shortcutmtwo
 	GuiControl, main:Disable, Playmtwo
 }
@@ -1843,12 +1850,14 @@ Gui, main:Submit, NoHide
 iniwrite, %mtwoemulocation%, sdlauncher.ini, mtwo, mtwoemulocation
 If FileExist(mtwoemulocation) &&	 Instr(mtwoemulocation, ".exe")
 {
+	GuiControl, main:Enable, mtwodemulshooter
 	GuiControl, main:Enable, Shortcutmtwo
 	GuiControl, main:Enable, Playmtwo
 	GuiControl, main:Enable, mtwoconfigure
 }
 else
 {
+	GuiControl, main:Disable, mtwodemulshooter
 	GuiControl, main:Disable, Shortcutmtwo
 	GuiControl, main:Disable, Playmtwo
 	GuiControl, main:Disable, mtwoconfigure
@@ -1856,7 +1865,7 @@ else
 gosub Save
 return
 mtwoemulocationBrowse: ; Browse for duckstation exe
-FileSelectFile, mtwoemulocation, S3,%mtwoemulocation%, Select the emulator executable, redream (redream.exe)
+FileSelectFile, mtwoemulocation, S3,%mtwoemulocation%, Select the emulator executable, emulator_multicpu (emulator_multicpu.exe)
 if (Errorlevel = 0)
 	GuiControl, main:, mtwoemulocation, %mtwoemulocation%
 If FileExist(mtwoemulocation) &&	 Instr(mtwoemulocation, ".exe")
