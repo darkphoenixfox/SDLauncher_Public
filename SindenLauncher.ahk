@@ -1027,6 +1027,7 @@ gosub Save
 return
 
 ps1configure:
+Gui, main:Submit, NoHide
 run, `"%ps1emulocation%`"
 return
  
@@ -1254,6 +1255,7 @@ gosub Save
 return
 
 snesconfigure:
+Gui, main:Submit, NoHide
 run, `"%snesemulocation%`", %snesemufolder%
 return
  
@@ -1495,6 +1497,7 @@ gosub Save
 return
 
 fcconfigure:
+Gui, main:Submit, NoHide
 run, `"%fcemulocation%`", %fcemufolder%
 return
  
@@ -1926,11 +1929,14 @@ return
 ;~ iniwrite, %mtwohidemouse%, sdlauncher.ini, mtwo, mtwohidemouse
 ;~ gosub Save
 ;~ return
+
 mtwodemulshooter:
+Gui, main:Submit, NoHide
 run, `"%mtwoemufolder%\DemulShooter_GUI.exe`", %mtwoemufolder%
 return
 
 mtwoconfigure:
+Gui, main:Submit, NoHide
 run, `"%mtwoemulocation%`", %mtwoemufolder%
 return
  
@@ -2128,6 +2134,7 @@ gosub Save
 return
 
 mameconfigure:
+Gui, main:Submit, NoHide
 run, `"%mameemulocation%`",  %mameemufolder%
 return
  
