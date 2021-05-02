@@ -21,7 +21,7 @@ systemParam = %1% ;system
 gameParam = %2% ; iso name with full path or rom name for mame
 systems := [] ; Init array
 ;.systems := [ps1,ps2,snes,demul,mame]
-systems := {"ps1":0,"snes":0, "nes":0, "fc":0, "mame":0,"dc":0} ; needs to be changed to add more systems
+systems := {"ps1":0,"snes":0, "nes":0, "fc":0, "mame":0,"dc":0, "m2":0, "mtwo":0} ; needs to be changed to add more systems
 FileCreateDir, %a_scriptdir%\temp
 
 I_Icon = %A_ScriptDir%\lib\Lightgun_RED.ico ; give the app a nice icon for the tray and the Windows
@@ -148,6 +148,34 @@ IniRead, dcreshade, sdlauncher.ini, dc, dcreshade, 0
 
 SplitPath, dcemulocation ,, dcemufolder
 
+
+;static Model2
+IniRead, mtwosystemname, sdlauncher.ini, mtwo, mtwosystemname, Model2
+IniRead, mtwoname, sdlauncher.ini, mtwo, mtwoname, Model2Emulator
+iniread, latestmtwo, sdlauncher.ini, mtwo, latestmtwo, https://retrocdn.net/images/3/3f/M2emulator_1.1a.7z
+iniread, mtwomanualdownload, launcher.ini, mtwo, mtwomanualdownload, http://nebula.emulatronia.com/descargas.php
+iniread, mtwosize, sdlauncher.ini, mtwo, mtwosize,  1220789
+iniread, mtwodocs, sdlauncher.ini, mtwo, mtwodocs, http://nebula.emulatronia.com/index.php
+IniRead, mtwowiki, sdlauncher.ini, mtwo, mtwowiki, https://sindenlightgun.miraheze.org/wiki/Model2
+IniRead, mtwovideo, sdlauncher.ini, mtwo, mtwovideo, https://www.youtube.com/watch?v=DYBqlsxN_IU
+
+;[mtwo]
+IniRead, mtwoemulocation, sdlauncher.ini, mtwo, mtwoemulocation, Path to emulator executable
+IniRead, mtwoparameters, sdlauncher.ini, mtwo, mtwoparameters, %a_space%-%A_space%
+IniRead, mtwogameslocation, sdlauncher.ini, mtwo, mtwogameslocation, Select your games folder
+;IniRead, mtwobezelslocation, sdlauncher.ini, mtwo, mtwobezelsLocation, %A_ScriptDir%\other\%mtwosystemname%\artwork
+;IniRead, mtwohidemouse, sdlauncher.ini, mtwo, mtwohidemouse, 0
+;IniRead, mtworeshade, sdlauncher.ini, mtwo, mtworeshade, 0
+
+
+;[demulshooter]
+iniread, latestdemulshooter, sdlauncher.ini, demulshooter, latestdemulshooter, https://github.com/argonlefou/DemulShooter/releases/download/v10.2.0/DemulShooter_v10.2.0.zip
+iniread, demulshootersize, sdlauncher.ini, demulshooter, demulshootersize,  490010
+IniRead, demulshootername, sdlauncher.ini, demulshooter, demulshootername, Demulshooter
+iniread, demulshooterdocs, sdlauncher.ini, demulshooter, demulshooterdocs, https://github.com/argonlefou/DemulShooter/wiki/Installation
+
+SplitPath, mtwoemulocation ,, mtwoemufolder
+
 ;   END INI FILE  -----   END INI FILE  -----   END INI FILE  -----   END INI FILE  -----   END INI FILE  -----   END INI FILE  -----   END INI FILE  -----   END INI FILE  -----   END INI FILE  -----   END INI FILE  -----
 
 
@@ -189,7 +217,6 @@ if (numParams > 0) ; Find out if the user is trying to open the UI or run a game
 		}
 		if (systemParam="mame")
 		{
-			SplitPath, gameParam,mamegamelist,mamegameslocation
 			Gosub Playmame
 		}
 		if (systemParam="dc")
@@ -197,10 +224,15 @@ if (numParams > 0) ; Find out if the user is trying to open the UI or run a game
 			SplitPath, gameParam,dcgamelist,dcgameslocation
 			Gosub Playdc
 		}
-				if (systemParam="nes" or systemParam="fc")
+		if (systemParam="nes" or systemParam="fc")
 		{
 			SplitPath, gameParam,fcgamelist,fcgameslocation
 			Gosub Playfc
+		}
+		if (systemParam="m2" or systemParam="model2")
+		{
+			SplitPath, gameParam,mtwogamelist,mtwogameslocation
+			Gosub Playmtwo
 		}
 		return
 	}
@@ -215,7 +247,7 @@ return
 ;   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----   MAIN UI  -----
 showUI:
 
-Gui, main:Add, Tab3, w800 h600 Center, Sinden||Playstation | SNES | NES | MAME | Dreamcast | Credits ;lite version
+Gui, main:Add, Tab3, w800 h600 Center, Sinden||Playstation | SNES | NES | MAME | Dreamcast | Model2 | Credits ;lite version
 
 
 
@@ -745,8 +777,103 @@ GuiButtonIcon(Icon, A_Scriptdir "\lib\left.ico", 1,"w32 h32 b10")
 gui, main:add, button, x705 y500 w80 h80 hwndIcon gNext, `n`n`n`n Next Tab 
 GuiButtonIcon(Icon, A_Scriptdir "\lib\right.ico", 1,"w32 h32 b10")
 
-; CREDITS TAB----------------------------------------------------------------------------------------------------------------------------------
+;MODEL 2 TAB -----------   MODEL 2 TAB -----------   MODEL 2 TAB -----------   MODEL 2 TAB -----------   MODEL 2 TAB -----------   
 Gui, main:Tab, 7
+Gui, main:Add, Picture, x735 y545 vDiskIconmtwo, %A_ScriptDir%\lib\disk.png
+GuiControl, main:hide, DiskIconmtwo
+Gui, main: font, bold
+if FileExist(a_scriptdir "\lib\" mtwoname ".ico")
+{
+	Gui, main:Add, picture, x40 y40 w64 h64 vmtwoico, %a_Scriptdir%\lib\%mtwoname%.ico
+	Gui, main:Add, Text, x22 y110 w100 h20 center, %mtwoname%
+}
+else
+	Gui, main:Add, Text, x30 y72 w150 h20 , %mtwoname%
+Gui, main: font
+Gui, main:Add, Button, x150 y70 w100 h20 gWizardmtwo, Installation Wizard
+Gui, main:Add, Text, x260 y72 w150 h20 , - or - 
+Gui, main:Add, Button, x290 y70 w100 h20 gDownmtwo , Manual Download
+Gui, main:Add, Button, x430 y70 w150 h20 gWikimtwo, %mtwoname% Sinden Wiki
+Gui, main:Add, Button, x610 y70 w140 h20 gVideomtwo, Video guide
+
+Gui, main:Add, Text, x70 y132 w150 h20 , Emulator Location
+Gui, main:Add, Edit, x180 y130 w490 h20 vmtwoemulocation gmtwoemulocation, %mtwoemulocation%
+Gui, main:Add, Button, x680 y130 w100 h20 gmtwoemulocationBrowse vmtwoemulocationBrowse, Browse
+
+Gui, main:Add, Text, x70 y162 w150 h20 , Emulator parameters
+Gui, main:Add, Edit, x180 y160 w490 h20 vmtwoparameters gmtwoparameters, %mtwoparameters%
+Gui, main:Add, Button, x680 y160 w100 h20 gmtwoparametersDefault , Default
+Gui, main:Add, Text, x70 y192 w150 h20 , Games Location
+Gui, main:Add, Edit, x180 y190 w490 h20 vmtwogameslocation gmtwogameslocation, %mtwogameslocation%
+Gui, main:Add, Button, x680 y190 w100 h20 gmtwogameslocationBrowser vmtwogameslocationBrowser , Browse
+
+;game browser
+Gui, main:Add, Text, x70 y222 w150 h20 , Game Launcher
+Gui, main:Add, DropDownList, x180 y220 w490 r6 gmtwogamelist vmtwogamelist,
+getFolderFilelistmtwo(mtwogameslocation,"mtwogamelist")
+;selected game options
+
+
+;Gui, main:add, text, x115 y254 w150 h20, Hide Mouse
+;GuiControl, main:, mtwohidemouse, %mtwohidemouse% ; set the default/ ini value
+;Gui, main:add, CheckBox, x180 y255 vmtwohidemouse gmtwohidemouse,
+Gui, main:add, Button, x180 y250 w120 h20 vmtwodemulshooter gmtwodemulshooter, Config. Demulshooter
+Gui, main:add, Button, x320 y250 w100 h20 vmtwoconfigure gmtwoconfigure, Configure Emulator
+If FileExist(mtwoemulocation) &&	 Instr(mtwoemulocation, ".exe")
+	GuiControl, main:Enable, mtwoconfigure
+else
+	GuiControl, main:Disable, mtwoconfigure
+Gui, main:Add, Button, x440 y250 w100 h20 gShortcutmtwo vShortcutmtwo, Create Shortcut
+Gui, main:Add, Button, x560 y250 w100 h40 gPlaymtwo vPlaymtwo, Play
+If FileExist(mtwoemulocation) &&	 Instr(mtwoemulocation, ".exe")
+{
+	GuiControl, main:Enable, Shortcutmtwo
+	GuiControl, main:Enable, Playmtwo
+}
+else
+{
+	GuiControl, main:Disable, Shortcutmtwo
+	GuiControl, main:Disable, Playmtwo
+}
+
+
+
+;Gui, main:add, text, x95 y334 w150 h20, Reshade Bezels
+;GuiControl, main:, mtworeshade, %mtworeshade% ; set the default/ ini value
+;Gui, main:add, CheckBox, x180 y335 vmtworeshade gmtworeshade,
+
+;Gui, main:add, text, x217 y350 w377 h40 center vmtwobezelMessage, %mtwoname% uses Reshade or Sinden Software for bezels.`n If you have issues running %mtwoname% in Borderless Fullscreen mode, enable the Reshade bezels.
+
+;~ ;bezel preview
+;~ Gui, main:Add, Text, x70 y302 w150 h20 , Bezels Location
+;~ Gui, main:Add, Edit, x180 y300 w490 h20 vmtwobezelslocation gmtwobezelslocation, %mtwobezelslocation%
+;~ Gui, main:Add, Button, x680 y300 w100 h20 gmtwobezelslocationBrowse vmtwobezelslocationBrowse, Browse
+;~ gui, main:submit, nohide
+;~ Gui, main:Add, Text, x70 y442 w150 h20 , Bezel Preview
+;~ Gui, main:add, text, x217 y570 w377 h20 center vmtwobezelMessage, Game bezel not found - Using generic
+;~ SplitPath, mtwogamelist,,,,mtwogamenoext
+;~ if !FileExist(mtwobezelslocation "\" mtwogamenoext ".png")
+;~ { 
+	;~ currentBezel = generic
+	;~ GuiControl, main:show, mtwobezelMessage
+;~ }
+;~ else
+;~ {
+	;~ currentBezel = %mtwogamenoext%
+	;~ GuiControl, main:hide, mtwobezelMessage
+;~ }
+;~ Gui, main:add, picture, x215 y343 w381 h216 vbackgroundmtwo, %A_ScriptDir%\lib\1px.png
+;~ Gui, main:add, picture, x217 y345 w377 h212 vbezelPreviewmtwo, %A_ScriptDir%\SindenBezels\%mtwosystemname%\%currentBezel%.png
+;~ Gui, main:Add, Button, x680 y440 w100 h20 gChangeBezelmtwo vChangeBezelmtwo, Change Bezel
+
+gui, main:add, button, x34 y500 w80 h80 hwndIcon gPrevious, `n`n`n`n Previous Tab 
+GuiButtonIcon(Icon, A_Scriptdir "\lib\left.ico", 1,"w32 h32 b10")
+
+gui, main:add, button, x705 y500 w80 h80 hwndIcon gNext, `n`n`n`n Next Tab 
+GuiButtonIcon(Icon, A_Scriptdir "\lib\right.ico", 1,"w32 h32 b10")
+
+; CREDITS TAB----------------------------------------------------------------------------------------------------------------------------------
+Gui, main:Tab, 8
 gui, main:font, s10
 gui, main:font, bold
 Gui, main:Add, Text, x40 y40 w800, Credits:
@@ -926,7 +1053,7 @@ return
 
 
 Playps1:
-
+gui, main:submit, nohide
 if (A_ScreenDPI>96)
 {
 	MsgBox, 4148, Display scaling is ON, The launcher has noticed that your display scaling is higher than 100`% `nThis can cause issues with bezels`, tracking and emulators.`nIt is recommended that you change this to 100`% before running games.`n`nDo you want to continue?
@@ -988,6 +1115,7 @@ gosub Save
 return
 
 Shortcutps1:
+gui, main:submit, nohide
 FileSelectFolder, shortcutLocation, *%A_Desktop%, 3, Select a folder to save the game shortcut
 SplitPath, ps1gamelist,,,,ps1gamenoext
 FileCreateShortcut, %A_ScriptFullPath%, %shortcutLocation%\%ps1gamenoext%.lnk,  "%A_Scriptdir%", ps1 "%ps1gameslocation%\%ps1gamelist%", Run %ps1gamenoext% with Sinden Bezels, %A_ScriptDir%\lib\Lightgun_BLACK.ico
@@ -1143,6 +1271,7 @@ return
 
 
 Playsnes:
+gui, main:submit, nohide
 if (A_ScreenDPI>96)
 {
 	MsgBox, 4148, Display scaling is ON, The launcher has noticed that your display scaling is higher than 100`% `nThis can cause issues with bezels`, tracking and emulators.`nIt is recommended that you change this to 100`% before running games.`n`nDo you want to continue?
@@ -1210,6 +1339,7 @@ gosub Save
 return
 
 Shortcutsnes:
+gui, main:submit, nohide
 FileSelectFolder, shortcutLocation, *%A_Desktop%, 3, Select a folder to save the game shortcut
 SplitPath, snesgamelist,,,,snesgamenoext
 FileCreateShortcut, %A_ScriptFullPath%, %shortcutLocation%\%snesgamenoext%.lnk,  "%A_Scriptdir%", snes "%snesgameslocation%\%snesgamelist%", Run %snesgamenoext% with Sinden Bezels, %A_ScriptDir%\lib\Lightgun_BLACK.ico
@@ -1382,6 +1512,7 @@ return
 
 
 Playfc:
+gui, main:submit, nohide
 if (A_ScreenDPI>96)
 {
 	MsgBox, 4148, Display scaling is ON, The launcher has noticed that your display scaling is higher than 100`% `nThis can cause issues with bezels`, tracking and emulators.`nIt is recommended that you change this to 100`% before running games.`n`nDo you want to continue?
@@ -1447,6 +1578,7 @@ gosub Save
 return
 
 Shortcutfc:
+gui, main:submit, nohide
 FileSelectFolder, shortcutLocation, *%A_Desktop%, 3, Select a folder to save the game shortcut
 SplitPath, fcgamelist,,,,fcgamenoext
 FileCreateShortcut, %A_ScriptFullPath%, %shortcutLocation%\%fcgamenoext%.lnk,  "%A_Scriptdir%", fc "%fcgameslocation%\%fcgamelist%", Run %fcgamenoext% with Sinden Bezels, %A_ScriptDir%\lib\Lightgun_BLACK.ico
@@ -1610,6 +1742,7 @@ return
 
 
 Playdc:
+gui, main:submit, nohide
 if (A_ScreenDPI>96)
 {
 	MsgBox, 4148, Display scaling is ON, The launcher has noticed that your display scaling is higher than 100`% `nThis can cause issues with bezels`, tracking and emulators.`nIt is recommended that you change this to 100`% before running games.`n`nDo you want to continue?
@@ -1661,9 +1794,197 @@ gosub Save
 return
 
 Shortcutdc:
+gui, main:submit, nohide
 FileSelectFolder, shortcutLocation, *%A_Desktop%, 3, Select a folder to save the game shortcut
 SplitPath, dcgamelist,,,,dcgamenoext
 FileCreateShortcut, %A_ScriptFullPath%, %shortcutLocation%\%dcgamenoext%.lnk,  "%A_Scriptdir%", dc "%dcgameslocation%\%dcgamelist%", Run %dcgamenoext% with Sinden Bezels, %A_ScriptDir%\lib\Lightgun_BLACK.ico
+run, explorer.exe %shortcutLocation%
+return
+
+; mtwo Buttons   ---------    mtwo Buttons   ---------    mtwo Buttons   ---------    mtwo Buttons   ---------    mtwo Buttons   ---------   
+
+Wizardmtwo: ;-------  mtwo wizard  -------  mtwo wizard  -------  mtwo wizard  -------  mtwo wizard  -------  mtwo wizard  -------  mtwo wizard  
+mtwoemulocation := emudownloader(mtwoname,latestmtwo,mtwosize,mtwodocs)"\emulator_multicpu.exe"
+SplitPath, mtwoemulocation ,, mtwoemufolder
+tooldownloader(demulshootername,latestdemulshooter,demulshootersize,demulshooterdocs)
+FileMove, %a_scriptdir%\tools\Demulshooter\*.* , %mtwoemufolder%\ , 1
+FileMoveDir, %a_scriptdir%\tools\Demulshooter\m2emulator , %mtwoemufolder%\m2emulator , R
+FileMoveDir, %a_scriptdir%\tools\Demulshooter\MemoryData , %mtwoemufolder%\MemoryData , R
+iniwrite, 0, %mtwoemufolder%\EMULATOR.INI , Renderer, DrawCross
+iniwrite, 1, %mtwoemufolder%\EMULATOR.INI , Renderer, ForceSync
+iniwrite, 1, %mtwoemufolder%\EMULATOR.INI , Renderer, AutoFull
+
+GuiControl, main:, mtwoemulocation, %mtwoemulocation%
+sleep 200
+FileCopyDir, %A_scriptdir%\other\%mtwosystemname%, %mtwoemufolder% , 1
+Gui, main:Submit, NoHide
+iniwrite, %mtwoemulocation%, sdlauncher.ini, mtwo, mtwoemulocation
+
+return
+;-------  mtwo wizard END  -------  mtwo wizard END -------  mtwo wizard END -------  mtwo wizard END  -------  mtwo wizard END -------  mtwo wizard  END 
+
+Downmtwo: ;manual download
+Gui, Submit, NoHide
+MsgBox, 8257, Download from the official page, 1- On the browser window you will find the `"Model 2 Emulator.`" section`n`n 2- Click Download (zip).
+IfMsgBox, OK
+	run, %mtwomanualdownload%
+return
+Wikimtwo:
+Gui, Submit, NoHide
+	run, %mtwowiki%
+return
+Videomtwo:
+Gui, Submit, NoHide
+	run, %mtwovideo%
+return
+
+mtwoemulocation:
+Gui, main:Submit, NoHide
+iniwrite, %mtwoemulocation%, sdlauncher.ini, mtwo, mtwoemulocation
+If FileExist(mtwoemulocation) &&	 Instr(mtwoemulocation, ".exe")
+{
+	GuiControl, main:Enable, Shortcutmtwo
+	GuiControl, main:Enable, Playmtwo
+	GuiControl, main:Enable, mtwoconfigure
+}
+else
+{
+	GuiControl, main:Disable, Shortcutmtwo
+	GuiControl, main:Disable, Playmtwo
+	GuiControl, main:Disable, mtwoconfigure
+}
+gosub Save
+return
+mtwoemulocationBrowse: ; Browse for duckstation exe
+FileSelectFile, mtwoemulocation, S3,%mtwoemulocation%, Select the emulator executable, redream (redream.exe)
+if (Errorlevel = 0)
+	GuiControl, main:, mtwoemulocation, %mtwoemulocation%
+If FileExist(mtwoemulocation) &&	 Instr(mtwoemulocation, ".exe")
+{
+	GuiControl, main:Enable, Shortcutmtwo
+	GuiControl, main:Enable, Playmtwo
+	GuiControl, main:Disable, mtwoconfigure
+}
+else
+{
+	GuiControl, main:Disable, Shortcutmtwo
+	GuiControl, main:Disable, Playmtwo
+	GuiControl, main:Disable, mtwoconfigure
+}
+Gui, main:Submit, NoHide
+iniwrite, %mtwoemulocation%, sdlauncher.ini, mtwo, mtwoemulocation
+gosub Save
+return
+
+
+mtwoparameters:
+Gui, main:Submit, NoHide
+iniwrite, %mtwoparameters%, sdlauncher.ini, mtwo, mtwoparameters
+gosub Save
+return
+mtwoparametersDefault: ; Default parameters for Duckstation
+GuiControl, main:, mtwoparameters, %a_space%-%a_space%
+Gui, main:Submit, NoHide
+iniwrite, %mtwoparameters%, sdlauncher.ini, mtwo, mtwoparameters
+gosub Save
+return
+
+;~ mtworeshade:
+;~ gui, main:Submit, NoHide
+;~ if (mtworeshade = 1)
+	;~ FileCopy, %A_Scriptdir%\lib\opengl32.dll, %mtwoemufolder% , 1
+;~ if (mtworeshade = 0)
+	;~ FileDelete, %mtwoemufolder%\opengl32.dll
+;~ IniWrite, %mtworeshade%, sdlauncher.ini, mtwo, ddreshade
+;~ return
+
+;~ mtwobezelslocation:
+;~ Gui, main:Submit, NoHide
+;~ iniwrite, %mtwobezelslocation%, sdlauncher.ini, mtwo, mtwobezelslocation
+;~ gosub Save
+;~ return
+;~ mtwobezelslocationBrowse: ; Browse for mtwo bezel folder
+;~ FileSelectFolder, mtwobezelslocation, *%mtwobezelslocation%, 3, Select your %mtwosystemname% bezel folder
+;~ if (Errorlevel = 0)
+	;~ GuiControl, main:, mtwobezelslocation, %mtwobezelslocation%
+;~ Gui, main:Submit, NoHide
+;~ iniwrite, %mtwobezelslocation%, sdlauncher.ini, mtwo, mtwobezelslocation
+;~ gosub Save
+;~ return
+
+;~ mtwohidemouse: ; Default parameters 
+;~ Gui, main:Submit, NoHide
+;~ iniwrite, %mtwohidemouse%, sdlauncher.ini, mtwo, mtwohidemouse
+;~ gosub Save
+;~ return
+mtwodemulshooter:
+run, `"%mtwoemufolder%\DemulShooter_GUI.exe`", %mtwoemufolder%
+return
+
+mtwoconfigure:
+run, `"%mtwoemulocation%`", %mtwoemufolder%
+return
+ 
+ 
+mtwogameslocation:
+Gui, main:Submit, NoHide
+getFolderFilelistmtwo(mtwogameslocation,"mtwogamelist")
+Gui, main:Submit, NoHide
+gosub Save
+return
+mtwogameslocationBrowser:
+FileSelectFolder, mtwogameslocation, *%mtwogameslocation%, 3, Select your %mtwosystemname% games folder
+if (Errorlevel = 0)
+{
+	GuiControl, main:, mtwogameslocation, %mtwogameslocation%
+	getFolderFilelistmtwo(mtwogameslocation,"mtwogamelist")
+}
+Gui, main:Submit, NoHide
+iniwrite, %mtwogameslocation%, sdlauncher.ini, mtwo, mtwogameslocation
+iniwrite, %mtwogameslocation%, %mtwoemufolder%\EMULATOR.ini, RomDirs, Dir1
+gosub Save
+return
+
+
+Playmtwo:
+gui, main:submit, nohide
+if (A_ScreenDPI>96)
+{
+	MsgBox, 4148, Display scaling is ON, The launcher has noticed that your display scaling is higher than 100`% `nThis can cause issues with bezels`, tracking and emulators.`nIt is recommended that you change this to 100`% before running games.`n`nDo you want to continue?
+	IfMsgBox, No
+	{
+		MsgBox, 36, Display scaling is ON, Do you know how to change the display scaling back to 100`% ?
+			IfMsgBox, No
+				run, https://www.windowscentral.com/how-set-custom-display-scaling-setting-windows-10#change_display_scaling_default_settings_windows10
+	return
+	}
+}
+playingmtwo = 1
+
+SysGet, m1, Monitor, 1
+LeftPixel := Floor((m1right - ((m1bottom/7)*8))/2)
+RightPixel := Floor(m1right - LeftPixel)
+mtwogamenoext := SubStr(mtwogamelist,1,InStr(mtwogamelist, "-") - 2)
+if (systemParam="m2" or systemParam="model2")
+	mtwogamenoext := SubStr(mtwogamelist,1,StrLen(mtwogamelist)-4)
+run, `"%mtwoemufolder%\DemulShooter.exe`"  -target=model2 -rom=%mtwogamenoext%  , %mtwoemufolder%
+sleep 1000
+run, `"%mtwoemulocation%`"  %mtwoparameters% %mtwogamenoext%  , %mtwoemufolder%
+Sleep 1000
+return
+
+mtwogamelist:
+gui, main:submit, nohide
+mtwogamenoext := SubStr(mtwogamelist,1,InStr(mtwogamelist, "-") - 2)
+gosub Save
+return
+
+Shortcutmtwo:
+gui, main:submit, nohide
+FileSelectFolder, shortcutLocation, *%A_Desktop%, 3, Select a folder to save the game shortcut
+mtwogamenoext := SubStr(mtwogamelist,1,InStr(mtwogamelist, "-") - 2)
+iniread, mtwolongname, %A_ScriptDir%\lib\mtwogamelist.ini, general, %mtwogamenoext%
+FileCreateShortcut, %A_ScriptFullPath%, %shortcutLocation%\%mtwolongname%.lnk,  "%A_Scriptdir%", m2 "%mtwogameslocation%\%mtwogamenoext%.zip", Run %mtwolongname% with Sinden Bezels, %A_ScriptDir%\lib\Lightgun_BLACK.ico
 run, explorer.exe %shortcutLocation%
 return
 
@@ -1842,6 +2163,7 @@ return
 
 
 Playmame:
+gui, main:submit, nohide
 if (A_ScreenDPI>96)
 {
 	MsgBox, 4148, Display scaling is ON, The launcher has noticed that your display scaling is higher than 100`% `nThis can cause issues with bezels`, tracking and emulators.`nIt is recommended that you change this to 100`% before running games.`n`nDo you want to continue?
@@ -1859,6 +2181,8 @@ LeftPixel := Floor((m1right - ((m1bottom/7)*8))/2)
 RightPixel := Floor(m1right - LeftPixel)
 ;SplitPath, mamegamelist,,,,mamegamenoext
 mamegamenoext := SubStr(mamegamelist,1,InStr(mamegamelist, "-") - 2)
+if (systemParam="mame")
+	mamegamenoext := gameParam
 run, `"%mameemulocation%`"  %mameparameters% `"%mamegameslocation%\%mamegamenoext%`" , %mameemufolder%
 return
 
@@ -1889,9 +2213,11 @@ gosub Save
 return
 
 Shortcutmame:
+gui, main:submit, nohide
 FileSelectFolder, shortcutLocation, *%A_Desktop%, 3, Select a folder to save the game shortcut
 mamegamenoext := SubStr(mamegamelist,1,InStr(mamegamelist, "-") - 2)
-FileCreateShortcut, %A_ScriptFullPath%, %shortcutLocation%\%mamegamenoext%.lnk,  "%A_Scriptdir%", mame "%mamegamenoext%", Run %mamegamenoext% with Sinden Bezels, %A_ScriptDir%\lib\Lightgun_BLACK.ico
+iniread, mamelongname, %A_ScriptDir%\lib\mamegamelist.ini, general, %mamegamenoext%
+FileCreateShortcut, %A_ScriptFullPath%, %shortcutLocation%\%mamelongname%.lnk,  "%A_Scriptdir%", mame %mamegamenoext%, Run %mamelongname% with Sinden Bezels, %A_ScriptDir%\lib\Lightgun_BLACK.ico
 run, explorer.exe %shortcutLocation%
 return
 
@@ -1924,6 +2250,8 @@ return
 ;----------------------------------------------------------------------------------------------------------------------
 
 Save: ;Settings saved tooltip
+gui, main: submit, nohide
+gosub updateIni
 ToolTip, Settings saved, 640 , 575
 GuiControl, main:show, DiskIcon
 GuiControl, main:show, DiskIconps1
@@ -2399,6 +2727,30 @@ getFolderFilelistmame(FolderPath,guiVariable)
 
 }
 
+getFolderFilelistmtwo(FolderPath,guiVariable)
+{
+
+	List = 
+	loop, Files, % FolderPath "\*.*"
+		{
+			SplitPath, A_LoopFileName, Filename,,FileExtension
+			if(FileExtension="ZIP")
+			{
+				SplitPath, Filename,,,,mtwogamenoext
+				Iniread, mtwogamename, %A_scriptdir%\lib\mtwogamelist.ini,General, %mtwogamenoext%
+				if !(mtwogamename="ERROR")
+				{
+					List .= mtwogamenoext " - " mtwogamename "|"
+				}
+			}
+		}
+	List := RTrim(List, "|")
+	List := StrReplace(List, "|", "||",, 1) ; make first item default
+	GuiControl,main:, %guiVariable%, |
+	GuiControl,main:, %guiVariable%, %List%
+
+}
+
 getFolderFilelistdc(FolderPath,guiVariable)
 {
 
@@ -2440,6 +2792,63 @@ GuiButtonIcon(Handle, File, Index := 1, Options := "")
 	return IL_Add( normal_il, File, Index )
 }
 
+updateIni:
+;[general]
+
+iniWrite, %numberofguns%, sdlauncher.ini, general, numberofguns
+iniWrite, %p1sindenlocation%, sdlauncher.ini, general, p1sindenlocation
+iniWrite, %p2sindenlocation%, sdlauncher.ini, general, p2sindenlocation
+
+;[ps1]
+iniWrite, %ps1emulocation%, sdlauncher.ini, ps1, ps1emulocation
+iniWrite, %ps1parameters%, sdlauncher.ini, ps1, ps1parameters
+iniWrite, %ps1bezelslocation%, sdlauncher.ini, ps1, ps1bezelsLocation
+iniWrite, %ps1gameslocation%, sdlauncher.ini, ps1, ps1gameslocation
+iniWrite, %ps1hidemouse%, sdlauncher.ini, ps1, ps1hidemouse
+
+
+;[snes]
+IniWrite, %snesemulocation%, sdlauncher.ini, snes, snesemulocation
+IniWrite, %snesparameters%, sdlauncher.ini, snes, snesparameters
+IniWrite, %snesbezelslocation%, sdlauncher.ini, snes, snesbezelsLocation
+IniWrite, %snesgameslocation%, sdlauncher.ini, snes, snesgameslocation
+IniWrite, %sneshidemouse%, sdlauncher.ini, snes, sneshidemouse
+
+;[fc]
+IniWrite, %fcemulocation%, sdlauncher.ini, fc, fcemulocation
+IniWrite, %fcparameters%, sdlauncher.ini, fc, fcparameters
+IniWrite, %fcbezelslocation%, sdlauncher.ini, fc, fcbezelsLocation
+IniWrite, %fcgameslocation%, sdlauncher.ini, fc, fcgameslocation
+IniWrite, %fchidemouse%, sdlauncher.ini, fc, fchidemouse
+
+;[mame]
+IniWrite, %mameemulocation%, sdlauncher.ini, mame, mameemulocation
+IniWrite, %mameparameters%, sdlauncher.ini, mame, mameparameters
+IniWrite, %mamebezelslocation%, sdlauncher.ini, mame, mamebezelsLocation
+IniWrite, %mamegameslocation%, sdlauncher.ini, mame, mamegameslocation
+IniWrite, %mamehidemouse%, sdlauncher.ini, mame, mamehidemouse
+
+
+;[dc]
+IniWrite, %dcemulocation%, sdlauncher.ini, dc, dcemulocation
+IniWrite, %dcparameters%, sdlauncher.ini, dc, dcparameters
+IniWrite, %dcbezelslocation%, sdlauncher.ini, dc, dcbezelsLocation
+IniWrite, %dcgameslocation%, sdlauncher.ini, dc, dcgameslocation
+IniWrite, %dchidemouse%, sdlauncher.ini, dc, dchidemouse
+IniWrite, %dcreshade%, sdlauncher.ini, dc, dcreshade
+
+;[mtwo]
+IniWrite, %mtwoemulocation%, sdlauncher.ini, mtwo, mtwoemulocation
+IniWrite, %mtwoparameters%, sdlauncher.ini, mtwo, mtwoparameters
+IniWrite, %mtwogameslocation%, sdlauncher.ini, mtwo, mtwogameslocation
+iniwrite, %mtwogameslocation%, %mtwoemufolder%\EMULATOR.ini, RomDirs, Dir1
+
+
+if FileExist(ps1emufolder "\settings.ini")
+{
+	iniwrite, %ps1gameslocation%, %ps1emufolder%\settings.ini, GameList, Paths
+}
+return
 
 mainGuiClose:
 FileRemoveDir, %A_ScriptDir%\temp, 1
@@ -2486,6 +2895,13 @@ IniWrite, %dcbezelslocation%, sdlauncher.ini, dc, dcbezelsLocation
 IniWrite, %dcgameslocation%, sdlauncher.ini, dc, dcgameslocation
 IniWrite, %dchidemouse%, sdlauncher.ini, dc, dchidemouse
 IniWrite, %dcreshade%, sdlauncher.ini, dc, dcreshade
+
+;[mtwo]
+IniWrite, %mtwoemulocation%, sdlauncher.ini, mtwo, mtwoemulocation
+IniWrite, %mtwoparameters%, sdlauncher.ini, mtwo, mtwoparameters
+IniWrite, %mtwogameslocation%, sdlauncher.ini, mtwo, mtwogameslocation
+iniwrite, %mtwogameslocation%, %mtwoemufolder%\EMULATOR.ini, RomDirs, Dir1
+
 
 if FileExist(ps1emufolder "\settings.ini")
 {
@@ -2598,6 +3014,21 @@ WinShow, ahk_class Shell_SecondaryTrayWnd
 gui, 88:destroy
 playingdc = 0
 Run,taskkill /im "redream" /F
+if (numParams = 0)
+	gui, main: show
+else
+	ExitApp
+#If
+
+#If (playingmtwo)
+$Esc::
+showcursor()
+Process,Close,emulator_multicpu
+Run,taskkill /im "emulator_multicpu.exe" /F
+Process,Close,demulshooter
+Run,taskkill /im "demulshooter.exe" /F
+playingmtwo = 0
+Run,taskkill /im "emulator_multicpu.exe" /F
 if (numParams = 0)
 	gui, main: show
 else
