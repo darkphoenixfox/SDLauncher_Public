@@ -4,5 +4,5 @@ sdlauncher.ini
 /temp/
 /gitignore
 /emulators
-SindenLauncher.zip
-createpack.bat
+*.zip
+pack.bat
