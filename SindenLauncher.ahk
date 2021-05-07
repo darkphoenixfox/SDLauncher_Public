@@ -1094,7 +1094,7 @@ IfWinNotExist, frame
 	Gui, 88:-Toolwindow
 	Gui, 88: +LastFound +AlwaysOnTop -Caption +ToolWindow  ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
 	Gui, 88: Color, %CustomColor%
-	Gui, 88: Add, Picture, x0 y0 w%m1right% h%m1Bottom% BackGroundTrans, %ps1bezelslocation%\%currentBezel%.png
+	Gui, 88: Add, Picture, x0 y0 w%m1right% h%m1Bottom% BackGroundTrans, %currentBezel%
 	WinSet, Style, -0xC40000, A
 	WinSet, TransColor, %CustomColor% ;150	; Make all pixels of this color transparent and make the text itself translucent (150)
 	Gui, 88: Show, x0 y0 w%m1right% h%m1Bottom%, NoActivate, frame ; NoActivate avoids deactivating the currently active window.
