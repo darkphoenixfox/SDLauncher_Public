@@ -112,7 +112,7 @@ SplitPath, fcemulocation ,, fcemufolder
 ;static MAME
 IniRead, mamesystemname, sdlauncher.ini, mame, mamesystemname, MAME
 IniRead, mamename, sdlauncher.ini, mame, mamename, MAME
-iniread, latestmame, sdlauncher.ini, mame, latestmame, https://github.com/mamedev/mame/releases/download/mame0230/mame0230b_64bit.exe
+iniread, latestmame, sdlauncher.ini, mame, latestmame, https://github.com/mamedev/mame/releases/download/mame0231/mame0231b_64bit.exe
 iniread, mamemanualdownload, launcher.ini, mame, mamemanualdownload, https://www.mamedev.org/release.html
 iniread, mamesize, sdlauncher.ini, mame, mamesize, 85856256
 iniread, mamedocs, sdlauncher.ini, mame, mamedocs, https://docs.mamedev.org/
@@ -131,7 +131,7 @@ SplitPath, mameemulocation ,, mameemufolder
 ;static DC
 IniRead, dcsystemname, sdlauncher.ini, dc, dcsystemname, Dreamcast
 IniRead, dcname, sdlauncher.ini, dc, dcname, Redream
-iniread, latestdc, sdlauncher.ini, dc, latestdc, https://redream.io/download/redream.x86_64-windows-v1.5.0-889-g6bb2cfc.zip
+iniread, latestdc, sdlauncher.ini, dc, latestdc, https://redream.io/download/redream.x86_64-windows-v1.5.0-917-g34f6ab1.zip
 iniread, dcmanualdownload, launcher.ini, dc, dcmanualdownload, https://redream.io/download
 iniread, dcsize, sdlauncher.ini, dc, dcsize,  2530123
 iniread, dcdocs, sdlauncher.ini, dc, dcdocs, https://redream.io/help
@@ -1469,7 +1469,7 @@ iniwrite, %fcparameters%, sdlauncher.ini, fc, fcparameters
 gosub Save
 return
 fcparametersDefault: ; Default parameters for Duckstation
-GuiControl, main:, fcparameters, -fullscreen -port2 superscope
+GuiControl, main:, fcparameters, -fullscreen
 Gui, main:Submit, NoHide
 iniwrite, %fcparameters%, sdlauncher.ini, fc, fcparameters
 gosub Save
