@@ -131,7 +131,7 @@ SplitPath, mameemulocation ,, mameemufolder
 ;static DC
 IniRead, dcsystemname, sdlauncher.ini, dc, dcsystemname, Dreamcast
 IniRead, dcname, sdlauncher.ini, dc, dcname, Redream
-iniread, latestdc, sdlauncher.ini, dc, latestdc, https://redream.io/download/redream.x86_64-windows-v1.5.0-917-g34f6ab1.zip
+iniread, latestdc, sdlauncher.ini, dc, latestdc, https://redream.io/download/redream.x86_64-windows-v1.5.0-926-gf138515.zip
 iniread, dcmanualdownload, launcher.ini, dc, dcmanualdownload, https://redream.io/download
 iniread, dcsize, sdlauncher.ini, dc, dcsize,  2530123
 iniread, dcdocs, sdlauncher.ini, dc, dcdocs, https://redream.io/help
